@@ -93,15 +93,13 @@ export function finalizeTool(
   if (!pending && !opts.force) return; // no terminal status yet
   const captured = lookupToolCall(deps.hookState, toolCallId).result;
   if (!opts.force && captured === undefined) return; // after_tool_call not in yet
-  if (deps.getResolved()?.captureContent) {
-    const result = safeJson(captured?.result);
-    if (result !== undefined) tool.result = result;
-  }
-  tool.end(
-    pending?.status === "error"
-      ? { error: new Error(pending.errorType ?? "tool.execution.error") }
-      : undefined,
-  );
+  tool.end({
+    result: deps.getResolved()?.captureContent ? safeJson(captured?.result) : undefined,
+    error:
+      pending?.status === "error"
+        ? new Error(pending.errorType ?? "tool.execution.error")
+        : undefined,
+  });
   clearToolCall(deps, toolCallId);
 }
 
