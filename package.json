@@ -2,7 +2,7 @@
   "name": "@wandb/forge-openclaw",
   "version": "0.1.5",
   "description": "OpenClaw plugin that traces agent sessions to CoreWeave Forge for observability and debugging.",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -21,7 +21,10 @@
     "!src/test/",
     "openclaw.plugin.json",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "LICENSES/",
+    "NOTICE",
+    "REUSE.toml"
   ],
   "openclaw": {
     "extensions": [
