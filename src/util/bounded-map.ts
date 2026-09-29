@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-PackageName: forge-openclaw
 
 // Per-map entry cap. Set far above the realistic count of concurrently-open
 // spans, so eviction never drops a live handle in normal operation and only

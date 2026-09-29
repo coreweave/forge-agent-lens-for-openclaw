@@ -1,22 +1,22 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-PackageName: forge-openclaw
 
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 import { onInternalDiagnosticEvent } from "openclaw/plugin-sdk/diagnostic-runtime";
-import { createWeaveHookState } from "./src/state/hook-state.js";
-import { createWeavePlugin, renderStatus, type WeavePlugin } from "./src/plugin.js";
+import { createForgeHookState } from "./src/state/hook-state.js";
+import { createForgePlugin, renderStatus, type ForgePlugin } from "./src/plugin.js";
 
 // register(api) can run multiple times (setup/runtime, hot-reload); cache the
 // instance + subscription on globalThis so a re-import doesn't make a stale duplicate.
-const PLUGIN_GLOBAL_KEY = Symbol.for("weave-openclaw.plugin");
-const DIAGNOSTIC_SUBSCRIBED_KEY = Symbol.for("weave-openclaw.diagnosticSubscribed");
+const PLUGIN_GLOBAL_KEY = Symbol.for("forge-openclaw.plugin");
+const DIAGNOSTIC_SUBSCRIBED_KEY = Symbol.for("forge-openclaw.diagnosticSubscribed");
 
-function getOrCreateSharedPlugin(pluginConfig: unknown): WeavePlugin {
+function getOrCreateSharedPlugin(pluginConfig: unknown): ForgePlugin {
   const g = globalThis as Record<PropertyKey, unknown>;
-  const cached = g[PLUGIN_GLOBAL_KEY] as WeavePlugin | undefined;
+  const cached = g[PLUGIN_GLOBAL_KEY] as ForgePlugin | undefined;
   if (cached) return cached;
-  const plugin = createWeavePlugin({ pluginConfig, hookState: createWeaveHookState() });
+  const plugin = createForgePlugin({ pluginConfig, hookState: createForgeHookState() });
   Object.defineProperty(g, PLUGIN_GLOBAL_KEY, {
     value: plugin,
     writable: false,
@@ -37,10 +37,10 @@ function getOrCreateSharedPlugin(pluginConfig: unknown): WeavePlugin {
 
 // definePluginEntry's return type isn't exported; annotate the default export to keep its emitted type portable.
 const pluginEntry: ReturnType<typeof definePluginEntry> = definePluginEntry({
-  id: "weave",
-  name: "W&B Weave",
+  id: "forge",
+  name: "CoreWeave Forge",
   description:
-    "Track OpenClaw agent sessions in W&B Weave for observability and debugging.",
+    "Track OpenClaw agent sessions in CoreWeave Forge for observability and debugging.",
   register(api) {
     const plugin = getOrCreateSharedPlugin(api.pluginConfig);
 
@@ -62,8 +62,8 @@ const pluginEntry: ReturnType<typeof definePluginEntry> = definePluginEntry({
     api.registerService(plugin.service);
 
     api.registerCommand({
-      name: "weave",
-      description: "Show W&B Weave plugin status",
+      name: "forge",
+      description: "Show CoreWeave Forge plugin status",
       acceptsArgs: true,
       handler: () => ({ text: renderStatus(plugin) }),
     });

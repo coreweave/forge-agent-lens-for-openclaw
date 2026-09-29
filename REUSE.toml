@@ -1,5 +1,5 @@
 version = 1
-SPDX-PackageName = "weave-openclaw"
+SPDX-PackageName = "forge-openclaw"
 SPDX-PackageSupplier = "CoreWeave, Inc."
 SPDX-PackageDownloadLocation = "https://github.com/wandb/weave-openclaw"
 

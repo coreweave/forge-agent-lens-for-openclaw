@@ -1,8 +1,8 @@
 {
-  "id": "weave",
-  "name": "W&B Weave",
+  "id": "forge",
+  "name": "CoreWeave Forge",
   "version": "0.1.5",
-  "description": "Track OpenClaw agent sessions in W&B Weave for observability and debugging.",
+  "description": "Track OpenClaw agent sessions in CoreWeave Forge for observability and debugging.",
   "activation": {
     "onStartup": true
   },
@@ -26,7 +26,7 @@
         "minLength": 1
       },
       "apiKey": {
-        "description": "W&B API key. String literal (discouraged), or a { source, provider, id } SecretRef resolved through OpenClaw's secret providers (env works out of the box; file/exec require a configured provider). Omit to let the Weave SDK resolve credentials from WANDB_API_KEY or netrc.",
+        "description": "W&B API key. String literal (discouraged), or a { source, provider, id } SecretRef resolved through OpenClaw's secret providers (env works out of the box; file/exec require a configured provider). Omit to let the plugin resolve credentials from WANDB_API_KEY or netrc.",
         "oneOf": [
           { "type": "string" },
           {
@@ -44,7 +44,7 @@
       "serviceName": {
         "type": "string",
         "default": "openclaw-agent",
-        "description": "Surfaced in `/weave status` for operator visibility. Not currently stamped onto the OTel resource by the Weave Node SDK; tracked separately."
+        "description": "OTel service.name resource attribute, also shown in `/forge status`."
       },
       "agentName": {
         "type": "string",
@@ -71,7 +71,7 @@
     }
   },
   "uiHints": {
-    "enabled": { "label": "Enable Weave export" },
+    "enabled": { "label": "Enable Forge export" },
     "entity": { "label": "W&B Entity (team/user)" },
     "project": { "label": "W&B Project" },
     "captureContent": {

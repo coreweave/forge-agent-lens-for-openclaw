@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-PackageName: forge-openclaw
 
 import { runIsolated } from "@coreweave/forge-sdk/agentlens/tracing";
 import type { HandlerDeps } from "../deps.js";

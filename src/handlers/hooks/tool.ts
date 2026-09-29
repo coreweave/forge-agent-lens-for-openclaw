@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-PackageName: forge-openclaw
 
 import { captureToolEnd, captureToolStart } from "../../state/hook-state.js";
 import { finalizeTool } from "../diagnostic/tool.js";

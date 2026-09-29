@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-PackageName: forge-openclaw
 
 // Per-hook event/ctx types recovered from OpenClawPluginApi["on"] via a TS
 // instantiation expression (avoids deep-importing the internal handler map).

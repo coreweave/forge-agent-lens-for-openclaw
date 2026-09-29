@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@coreweave/forge-sdk':
-        specifier: file:.context/coreweave-forge-sdk-0.1.0.tgz
-        version: file:.context/coreweave-forge-sdk-0.1.0.tgz
+        specifier: 0.1.0-beta.0
+        version: 0.1.0-beta.0
       '@opentelemetry/api':
         specifier: ^1.9.1
         version: 1.9.1
@@ -65,9 +65,8 @@ packages:
     resolution: {integrity: sha512-S0My7XPGIgpRWMDG8uRqalbgT+a6FmCUdOW+HaIOVVpUPHOb7RrpvjTjiODadKp06fsrVDJZlIzc6yCTp4AnxA==}
     engines: {node: '>= 20.12.0'}
 
-  '@coreweave/forge-sdk@file:.context/coreweave-forge-sdk-0.1.0.tgz':
-    resolution: {integrity: sha512-40qp6rSm4dY5+/0copCWoaTAbnu02AtYuqpE0WOLPlE4zVqjIVE9+irkdTgv0rRSquct8FhpVxdudqdg3VkBwg==, tarball: file:.context/coreweave-forge-sdk-0.1.0.tgz}
-    version: 0.1.0
+  '@coreweave/forge-sdk@0.1.0-beta.0':
+    resolution: {integrity: sha512-CNUF76r92QTg5sSEKRholXgSBmiH43ZxTyWrg7WFUFMy+K3vkeIVbxe1/75Gxw5Y7LC5vrZ2BXoG3M3W1Owh6g==}
     engines: {node: ^18.19.0 || >=20.6.0}
 
   '@earendil-works/pi-tui@0.78.0':
@@ -1983,7 +1982,7 @@ snapshots:
       fast-wrap-ansi: 0.2.2
       sisteransi: 1.0.5
 
-  '@coreweave/forge-sdk@file:.context/coreweave-forge-sdk-0.1.0.tgz':
+  '@coreweave/forge-sdk@0.1.0-beta.0':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/exporter-trace-otlp-proto': 0.221.0(@opentelemetry/api@1.9.1)

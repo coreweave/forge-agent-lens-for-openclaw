@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-PackageName: forge-openclaw
 
 import type { HandlerDeps } from "../deps.js";
 import type { HookCtx, HookEvent, HookHandler } from "../hook-types.js";

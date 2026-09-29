@@ -1,29 +1,21 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-PackageName: forge-openclaw
 
 import { vi, beforeEach } from "vitest";
 import { InMemorySpanExporter, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-base";
-import { createWeaveHookState } from "../state/hook-state.js";
-
-// vi.mock("weave", ...) must stay in each test file: vitest hoists it to the top
-// of the importing file, so it can't move here. The exporter + warmup-pin setup
-// is not file-specific though, so pinInMemoryExporter() centralizes it; each
-// file calls it once for its own exporter (the SDK tracing provider is
-// first-call-wins per process, and vitest isolates test files).
+import { createForgeHookState } from "../state/hook-state.js";
 
 export function makeLogger() {
   return { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() };
 }
 
 export async function bootPlugin(extraConfig: Record<string, unknown> = {}) {
-  // Plugin module is imported dynamically so vi.mock("weave", ...) (hoisted in
-  // each test file) is in place before plugin.ts's transitive weave imports
-  // resolve — a static import here pins the unmocked module too eagerly.
-  const { createWeavePlugin } = await import("../plugin.js");
-  const hookState = createWeaveHookState();
+  // Import after the SDK export destination has been replaced below.
+  const { createForgePlugin } = await import("../plugin.js");
+  const hookState = createForgeHookState();
   const logger = makeLogger();
-  const plugin = createWeavePlugin({
+  const plugin = createForgePlugin({
     pluginConfig: {
       entity: "my-team",
       project: "my-project",

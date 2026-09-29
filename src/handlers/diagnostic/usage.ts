@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-PackageName: forge-openclaw
 
 import type { DiagnosticEventPayload } from "openclaw/plugin-sdk/diagnostic-runtime";
 import type { HandlerDeps } from "../deps.js";
@@ -23,7 +23,7 @@ export function createUsageDiagnosticHandlers(deps: HandlerDeps) {
         turn.setAttributes({ "weave.cost.usd": total });
       }
       // usage is typed required but the runtime sometimes emits cost-only; guard.
-      // Attribute names follow the OTel GenAI semconv as exposed by the Weave SDK
+      // Attribute names follow the OTel GenAI semconv as exposed by the Forge SDK
       // (`gen_ai.usage.*`), matching what the chat span already emits.
       const usage = event.usage;
       if (usage) {

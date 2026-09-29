@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-PackageName: forge-openclaw
 
 import { describe, it, expect, vi, assert } from "vitest";
 import {
@@ -39,9 +39,9 @@ describe("end-to-end smoke", () => {
     await finish();
 
     const spans = exporter.getFinishedSpans();
-    const turn = spans.find(s => s.name === "invoke_agent");
-    const chat = spans.find(s => s.name === "chat");
-    const tool = spans.find(s => s.name === "execute_tool");
+    const turn = spans.find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
+    const chat = spans.find(s => s.attributes["gen_ai.operation.name"] === "chat");
+    const tool = spans.find(s => s.attributes["gen_ai.operation.name"] === "execute_tool");
     assert(turn);
     assert(chat);
     assert(tool);
@@ -57,7 +57,7 @@ describe("end-to-end smoke", () => {
         "gen_ai.system_instructions": "[{"type":"text","content":"be helpful"}]",
         "gen_ai.usage.input_tokens": 5,
         "gen_ai.usage.output_tokens": 3,
-        "weave.integration.name": "weave-openclaw",
+        "weave.integration.name": "forge-openclaw",
         "weave.integration.version": Any<String>,
         "weave.source": "forge-integration",
       }
@@ -71,7 +71,7 @@ describe("end-to-end smoke", () => {
         "gen_ai.tool.call.id": "tc-1",
         "gen_ai.tool.call.result": "{"hits":7}",
         "gen_ai.tool.name": "search",
-        "weave.integration.name": "weave-openclaw",
+        "weave.integration.name": "forge-openclaw",
         "weave.integration.version": Any<String>,
         "weave.source": "forge-integration",
       }
@@ -90,7 +90,7 @@ describe("end-to-end smoke", () => {
         "gen_ai.operation.name": "invoke_agent",
         "gen_ai.system_instructions": "[{"type":"text","content":"be helpful"}]",
         "weave.cost.usd": 0.0001,
-        "weave.integration.name": "weave-openclaw",
+        "weave.integration.name": "forge-openclaw",
         "weave.integration.version": Any<String>,
         "weave.outcome": "completed",
         "weave.source": "forge-integration",
@@ -122,7 +122,7 @@ describe("end-to-end smoke", () => {
     dispatch.hook("session_end", { sessionKey: "s-2" });
     await finish();
 
-    const chats = exporter.getFinishedSpans().filter(s => s.name === "chat");
+    const chats = exporter.getFinishedSpans().filter(s => s.attributes["gen_ai.operation.name"] === "chat");
     expect(chats.map(s => ({
       ...s.attributes,
       "weave.integration.version": "<version>",
@@ -135,7 +135,7 @@ describe("end-to-end smoke", () => {
           "gen_ai.output.messages": "[{"role":"assistant","content":"I'll search"}]",
           "gen_ai.request.model": "gpt-4o",
           "gen_ai.system_instructions": "[{"type":"text","content":"be brief"}]",
-          "weave.integration.name": "weave-openclaw",
+          "weave.integration.name": "forge-openclaw",
           "weave.integration.version": "<version>",
           "weave.source": "forge-integration",
         },
@@ -147,7 +147,7 @@ describe("end-to-end smoke", () => {
           "gen_ai.system_instructions": "[{"type":"text","content":"be brief"}]",
           "gen_ai.usage.input_tokens": 12,
           "gen_ai.usage.output_tokens": 8,
-          "weave.integration.name": "weave-openclaw",
+          "weave.integration.name": "forge-openclaw",
           "weave.integration.version": "<version>",
           "weave.source": "forge-integration",
         },

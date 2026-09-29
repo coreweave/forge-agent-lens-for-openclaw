@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-PackageName: forge-openclaw
 
 export type StatusSnapshot = {
   pluginVersion: string;
@@ -21,7 +21,7 @@ export type StatusSnapshot = {
 
 export function formatStatus(snapshot: StatusSnapshot): string {
   const lines: string[] = [];
-  lines.push(`weave: pluginVersion=${snapshot.pluginVersion}`);
+  lines.push(`forge: pluginVersion=${snapshot.pluginVersion}`);
   const lifecyclePart = snapshot.lifecycleDetail
     ? `lifecycle=${snapshot.lifecycle} (${snapshot.lifecycleDetail})`
     : `lifecycle=${snapshot.lifecycle}`;

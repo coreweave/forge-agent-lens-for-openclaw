@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-PackageName: forge-openclaw
 
 import { describe, it, expect } from "vitest";
 import { formatStatus } from "./status.js";
@@ -23,7 +23,7 @@ describe("formatStatus", () => {
       counts: { turns: 3, calls: 1, tools: 0, subagents: 0 },
     });
     expect(out).toMatchInlineSnapshot(`
-      "weave: pluginVersion=0.0.1
+      "forge: pluginVersion=0.0.1
              lifecycle=running started=2024-05-23T16:04:11.000Z
              project=my-team/openclaw-default service=openclaw-agent agentVersion=0.0.1
              auth=env:WANDB_API_KEY flushIntervalMs=5000 captureContent=on

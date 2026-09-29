@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-PackageName: forge-openclaw
 
 import { flushOTel, init as initTracing } from "@coreweave/forge-sdk/agentlens/tracing";
 import type { OpenClawPluginService } from "openclaw/plugin-sdk/plugin-entry";
@@ -8,7 +8,7 @@ import type {
   DiagnosticEventMetadata,
   DiagnosticEventPayload,
 } from "openclaw/plugin-sdk/diagnostic-runtime";
-import type { WeaveHookState } from "./state/hook-state.js";
+import type { ForgeHookState } from "./state/hook-state.js";
 import { resolveConfig, type RawConfig, type ResolvedConfig } from "./config/config.js";
 import { readDefaultApiKey, readWandbBaseUrl } from "./config/env.js";
 import { createRegistries, type Registries } from "./state/registries.js";
@@ -32,12 +32,12 @@ import { createContextDiagnosticHandlers } from "./handlers/diagnostic/context.j
 const WANDB_CLOUD_API_BASE_URL = "https://api.wandb.ai";
 const WANDB_CLOUD_UI_BASE_URL = "https://wandb.ai";
 
-type CreateWeavePluginParams = {
+type CreateForgePluginParams = {
   pluginConfig?: unknown;
-  hookState: WeaveHookState;
+  hookState: ForgeHookState;
 };
 
-export type WeavePlugin = {
+export type ForgePlugin = {
   service: OpenClawPluginService;
   registries: Registries;
   getStatus: () => StatusSnapshot;
@@ -47,7 +47,7 @@ export type WeavePlugin = {
   };
 };
 
-export function createWeavePlugin(params: CreateWeavePluginParams): WeavePlugin {
+export function createForgePlugin(params: CreateForgePluginParams): ForgePlugin {
   const registries = createRegistries();
   let resolved: ResolvedConfig | undefined;
   let lifecycle: StatusSnapshot["lifecycle"] = "not-started";
@@ -89,7 +89,7 @@ export function createWeavePlugin(params: CreateWeavePluginParams): WeavePlugin 
   }
 
   const service: OpenClawPluginService = {
-    id: "weave",
+    id: "forge",
     async start(ctx) {
       logger = ctx.logger;
       if (lifecycle === "running") resetTransientState();
@@ -103,14 +103,14 @@ export function createWeavePlugin(params: CreateWeavePluginParams): WeavePlugin 
       } catch (err) {
         lifecycle = "config-error";
         lifecycleDetail = err instanceof Error ? err.message : String(err);
-        ctx.logger.error(`weave: ${lifecycleDetail}`);
+        ctx.logger.error(`forge: ${lifecycleDetail}`);
         return;
       }
       if (!cfg.enabled) {
         lifecycle = "disabled";
         lifecycleDetail = "config.enabled=false";
         ctx.logger.warn(
-          `weave: configured but disabled (config.enabled=false)`,
+          `forge: configured but disabled (config.enabled=false)`,
         );
         return;
       }
@@ -128,19 +128,19 @@ export function createWeavePlugin(params: CreateWeavePluginParams): WeavePlugin 
       } catch (err) {
         lifecycle = "config-error";
         lifecycleDetail = err instanceof Error ? err.message : String(err);
-        ctx.logger.error(`weave: init failed: ${lifecycleDetail}`);
+        ctx.logger.error(`forge: init failed: ${lifecycleDetail}`);
         return;
       }
       resolved = cfg;
       lifecycle = "running";
       startedAt = Date.now();
       ctx.logger.info(
-        `weave: project=${cfg.projectId} service=${cfg.serviceName} agentVersion=${cfg.agentVersion} ` +
+        `forge: project=${cfg.projectId} service=${cfg.serviceName} agentVersion=${cfg.agentVersion} ` +
           `auth=${cfg.authSource ?? "WANDB_API_KEY env"} captureContent=${cfg.captureContent ? "on" : "off"}`,
       );
       if (cfg.captureContent) {
         ctx.logger.info(
-          "weave: captureContent is on; full conversation content (prompts, replies, tool inputs and results) " +
+          "forge: captureContent is on; full conversation content (prompts, replies, tool inputs and results) " +
             "is sent to W&B unredacted. Set captureContent=false to export only trace structure and token/cost totals.",
         );
       }
@@ -151,7 +151,7 @@ export function createWeavePlugin(params: CreateWeavePluginParams): WeavePlugin 
         await flushOTel();
       } catch (err) {
         ctx.logger.warn(
-          `weave: flushOTel failed during stop: ${err instanceof Error ? err.message : String(err)}`,
+          `forge: flushOTel failed during stop: ${err instanceof Error ? err.message : String(err)}`,
         );
       }
       resetTransientState();
@@ -202,7 +202,7 @@ export function createWeavePlugin(params: CreateWeavePluginParams): WeavePlugin 
   const { onModelUsage } = createUsageDiagnosticHandlers(deps);
   const { onContextAssembled } = createContextDiagnosticHandlers(deps);
 
-  const handlers: WeavePlugin["handlers"] = {
+  const handlers: ForgePlugin["handlers"] = {
     hook: {
       ...sessionHooks,
       ...turnHooks,
@@ -249,6 +249,6 @@ export function createWeavePlugin(params: CreateWeavePluginParams): WeavePlugin 
   return { service, registries, getStatus, handlers };
 }
 
-export function renderStatus(plugin: WeavePlugin): string {
+export function renderStatus(plugin: ForgePlugin): string {
   return formatStatus(plugin.getStatus());
 }
