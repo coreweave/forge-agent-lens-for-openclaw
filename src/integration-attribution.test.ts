@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-PackageName: forge-openclaw
+// SPDX-PackageName: forge-agent-lens-for-openclaw
 
 // Integration identity must land on EVERY span, not just the invoke_agent root,
 // so the backend can group/filter chat/tool spans by integration too. Set once at

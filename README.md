@@ -1,10 +1,10 @@
-# forge-openclaw
+# forge-agent-lens-for-openclaw
 
-[![npm version](https://img.shields.io/npm/v/forge-openclaw.svg)](https://www.npmjs.com/package/forge-openclaw)
-[![ClawHub plugin](https://img.shields.io/badge/ClawHub-plugin-orange.svg)](https://clawhub.ai/wandb/plugins/forge-openclaw)
-[![CI](https://github.com/wandb/weave-openclaw/actions/workflows/ci.yml/badge.svg)](https://github.com/wandb/weave-openclaw/actions/workflows/ci.yml)
-[![license](https://img.shields.io/npm/l/forge-openclaw.svg)](./LICENSE)
-[![node](https://img.shields.io/node/v/forge-openclaw.svg)](./package.json)
+[![npm version](https://img.shields.io/npm/v/forge-agent-lens-for-openclaw.svg)](https://www.npmjs.com/package/forge-agent-lens-for-openclaw)
+[![ClawHub plugin](https://img.shields.io/badge/ClawHub-plugin-orange.svg)](https://clawhub.ai/wandb/plugins/forge-agent-lens-for-openclaw)
+[![CI](https://github.com/coreweave/forge-agent-lens-for-openclaw/actions/workflows/ci.yml/badge.svg)](https://github.com/coreweave/forge-agent-lens-for-openclaw/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/forge-agent-lens-for-openclaw.svg)](./LICENSE)
+[![node](https://img.shields.io/node/v/forge-agent-lens-for-openclaw.svg)](./package.json)
 
 OpenClaw plugin for tracing agent runs, model calls, tool calls, tokens, and
 costs in CoreWeave Forge.
@@ -17,7 +17,8 @@ costs in CoreWeave Forge.
 ## Tracing SDK
 
 Tracing uses `@coreweave/forge-sdk/agentlens/tracing`. Every turn, chat, tool,
-and subagent span carries `forge.integration.name = forge-openclaw` and
+and subagent span carries
+`forge.integration.name = forge-agent-lens-for-openclaw` and
 `forge.integration.version`. The OTLP resource reports
 `wandb.sdk.name = forge`. Plugin configuration and credential precedence are unchanged.
 
@@ -41,7 +42,6 @@ is now `forge.outcome`. Agent version, ID, and description use the
 `gen_ai.agent.*` semantic conventions, and `weave.source` was removed. Only
 `weave.compaction.*` keeps its name, because the Weave backend reads it. W&B API
 and environment names and the `/weave/agents` dashboard route are unchanged.
-Repository links still target `wandb/weave-openclaw` until its external rename.
 
 ## Setup
 
@@ -52,7 +52,7 @@ publish npm or ClawHub packages. Development uses the published
 Install the plugin:
 
 ```bash
-openclaw plugins install clawhub:@wandb/forge-openclaw
+openclaw plugins install clawhub:@wandb/forge-agent-lens-for-openclaw
 ```
 
 Export a [W&B API key](https://wandb.ai/authorize):
@@ -96,7 +96,7 @@ token counts. Without it, trace structure, tool calls, and run totals still
 work. `diagnostics.enabled: false` disables tracing.
 
 See the [full setup guide](https://docs.wandb.ai/weave/guides/integrations/agents/openclaw-harness)
-and [ClawHub listing](https://clawhub.ai/wandb/plugins/forge-openclaw).
+and [ClawHub listing](https://clawhub.ai/wandb/plugins/forge-agent-lens-for-openclaw).
 
 ## Configuration
 

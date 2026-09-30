@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-PackageName: forge-openclaw
+// SPDX-PackageName: forge-agent-lens-for-openclaw
 
 import { describe, it, expect, vi, assert } from "vitest";
 import {
@@ -49,7 +49,7 @@ describe("end-to-end smoke", () => {
     expect(chat.attributes).toMatchInlineSnapshot(
       { "forge.integration.version": expect.any(String) }, `
       {
-        "forge.integration.name": "forge-openclaw",
+        "forge.integration.name": "forge-agent-lens-for-openclaw",
         "forge.integration.version": Any<String>,
         "gen_ai.conversation.id": "s-1",
         "gen_ai.input.messages": "[{"role":"user","content":"hi"}]",
@@ -64,7 +64,7 @@ describe("end-to-end smoke", () => {
     expect(tool.attributes).toMatchInlineSnapshot(
       { "forge.integration.version": expect.any(String) }, `
       {
-        "forge.integration.name": "forge-openclaw",
+        "forge.integration.name": "forge-agent-lens-for-openclaw",
         "forge.integration.version": Any<String>,
         "gen_ai.conversation.id": "s-1",
         "gen_ai.operation.name": "execute_tool",
@@ -84,7 +84,7 @@ describe("end-to-end smoke", () => {
       { "forge.integration.version": expect.any(String) }, `
       {
         "forge.cost.usd": 0.0001,
-        "forge.integration.name": "forge-openclaw",
+        "forge.integration.name": "forge-agent-lens-for-openclaw",
         "forge.integration.version": Any<String>,
         "forge.outcome": "completed",
         "gen_ai.agent.name": "test-agent",
@@ -126,7 +126,7 @@ describe("end-to-end smoke", () => {
     }))).toMatchInlineSnapshot(`
       [
         {
-          "forge.integration.name": "forge-openclaw",
+          "forge.integration.name": "forge-agent-lens-for-openclaw",
           "forge.integration.version": "<version>",
           "gen_ai.conversation.id": "s-2",
           "gen_ai.input.messages": "[{"role":"user","content":"find tennis stats"}]",
@@ -136,7 +136,7 @@ describe("end-to-end smoke", () => {
           "gen_ai.system_instructions": "[{"type":"text","content":"be brief"}]",
         },
         {
-          "forge.integration.name": "forge-openclaw",
+          "forge.integration.name": "forge-agent-lens-for-openclaw",
           "forge.integration.version": "<version>",
           "gen_ai.conversation.id": "s-2",
           "gen_ai.operation.name": "chat",

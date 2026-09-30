@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-PackageName: forge-openclaw
+// SPDX-PackageName: forge-agent-lens-for-openclaw
 
 import { describe, it, expect, afterEach, vi, assert } from "vitest";
 import { createForgeHookState } from "./state/hook-state.js";
@@ -93,7 +93,7 @@ describe("turn lifecycle", () => {
     expect(turn.attributes).toMatchInlineSnapshot(
       { "gen_ai.agent.version": expect.any(String), "forge.integration.version": expect.any(String) }, `
       {
-        "forge.integration.name": "forge-openclaw",
+        "forge.integration.name": "forge-agent-lens-for-openclaw",
         "forge.integration.version": Any<String>,
         "forge.outcome": "completed",
         "gen_ai.agent.name": "openclaw-agent",
@@ -159,7 +159,7 @@ describe("turn lifecycle", () => {
       {
         "forge.agent.duration_ms": 1500,
         "forge.agent.success": true,
-        "forge.integration.name": "forge-openclaw",
+        "forge.integration.name": "forge-agent-lens-for-openclaw",
         "forge.integration.version": Any<String>,
         "forge.outcome": "completed",
         "gen_ai.agent.name": "openclaw-agent",
@@ -172,7 +172,7 @@ describe("turn lifecycle", () => {
       { "gen_ai.agent.version": expect.any(String), "forge.integration.version": expect.any(String) }, `
       {
         "forge.agent.duration_ms": 100,
-        "forge.integration.name": "forge-openclaw",
+        "forge.integration.name": "forge-agent-lens-for-openclaw",
         "forge.integration.version": Any<String>,
         "forge.outcome": "completed",
         "gen_ai.agent.name": "openclaw-agent",
@@ -185,7 +185,7 @@ describe("turn lifecycle", () => {
       { "gen_ai.agent.version": expect.any(String), "forge.integration.version": expect.any(String) }, `
       {
         "forge.agent.success": false,
-        "forge.integration.name": "forge-openclaw",
+        "forge.integration.name": "forge-agent-lens-for-openclaw",
         "forge.integration.version": Any<String>,
         "forge.outcome": "completed",
         "gen_ai.agent.name": "openclaw-agent",
@@ -223,7 +223,7 @@ describe("llm two-signal close", () => {
     expect(chat.attributes).toMatchInlineSnapshot(
       { "forge.integration.version": expect.any(String) }, `
       {
-        "forge.integration.name": "forge-openclaw",
+        "forge.integration.name": "forge-agent-lens-for-openclaw",
         "forge.integration.version": Any<String>,
         "gen_ai.conversation.id": "s",
         "gen_ai.input.messages": "[{"role":"user","content":"hi"}]",
