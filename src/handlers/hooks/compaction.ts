@@ -33,7 +33,8 @@ export function createCompactionHookHandlers(deps: HandlerDeps): {
       deps.pendingCompactionByRun.delete(runId);
 
       // When before_compaction never fired, reconstruct the pre-compaction count
-      // as the survivors plus the number compacted away.
+      // as the survivors plus the number compacted away. weave.compaction.* stays:
+      // the Weave backend reads those keys and has no forge.* equivalent.
       turn.addEvent("context_compacted", {
         "weave.compaction.items_before": before?.itemsBefore ?? event.messageCount + event.compactedCount,
         "weave.compaction.items_after": event.messageCount,

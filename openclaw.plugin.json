@@ -48,15 +48,15 @@
       },
       "agentName": {
         "type": "string",
-        "description": "Override for weave.agent.name. Falls back to harnessId/pluginId from events."
+        "description": "Override for gen_ai.agent.name. Falls back to harnessId/pluginId from events."
       },
       "agentVersion": {
         "type": "string",
-        "description": "weave.agent.version attribute. Leave unset to use the plugin package version, or set an explicit string (e.g. 'v0.1') to pin."
+        "description": "gen_ai.agent.version attribute. Leave unset to use the plugin package version, or set an explicit string (e.g. 'v0.1') to pin."
       },
       "agentDescription": {
         "type": "string",
-        "description": "weave.agent.description attribute."
+        "description": "gen_ai.agent.description attribute."
       },
       "captureContent": {
         "type": "boolean",

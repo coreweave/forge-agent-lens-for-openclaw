@@ -24,15 +24,17 @@ export function createRunDiagnosticHandlers(deps: HandlerDeps) {
       // Lazy-create, not redundant with session_start: a run can reach us for a
       // live sessionKey whose session_start we never saw (plugin started mid-session).
       const conversation = getOrCreateConversation(deps, event.sessionKey, agentName);
+      const turnInit = {
+        agentName,
+        model: event.model,
+        agentVersion: resolved.agentVersion,
+        agentDescription: resolved.agentDescription,
+      };
       const turn = runIsolated(() =>
         conversation
-          ? conversation.startTurn({ agentName, model: event.model })
-          : startTurn({ agentName, model: event.model, attributes: INTEGRATION_ATTRIBUTES }),
+          ? conversation.startTurn(turnInit)
+          : startTurn({ ...turnInit, attributes: INTEGRATION_ATTRIBUTES }),
       );
-      if (resolved.agentVersion)
-        turn.setAttributes({ "weave.agent.version": resolved.agentVersion });
-      if (resolved.agentDescription)
-        turn.setAttributes({ "gen_ai.agent.description": resolved.agentDescription });
       deps.registries.turns.set(event.runId, turn);
       // Index by sessionKey so tool.loop events (which omit runId) reach this Turn.
       if (event.sessionKey) deps.runIdBySession.set(event.sessionKey, event.runId);
@@ -46,7 +48,7 @@ export function createRunDiagnosticHandlers(deps: HandlerDeps) {
       finalizeRunTools(deps, event.runId);
       const turn = deps.registries.turns.get(event.runId);
       if (!turn) return;
-      turn.setAttributes({ "weave.outcome": event.outcome });
+      turn.setAttributes({ "forge.outcome": event.outcome });
       if (isErrorOutcome(event.outcome)) {
         turn.end({ error: new Error(event.outcome) });
       } else {
@@ -61,7 +63,7 @@ export function createRunDiagnosticHandlers(deps: HandlerDeps) {
     onRunAttempt(event: RunAttemptEvent): void {
       const turn = deps.registries.turns.get(event.runId);
       if (!turn) return;
-      turn.addEvent("run_attempt", { "weave.run.attempt": event.attempt });
+      turn.addEvent("run_attempt", { "forge.run.attempt": event.attempt });
     },
   };
 }

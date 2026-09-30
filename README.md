@@ -17,9 +17,8 @@ costs in CoreWeave Forge.
 ## Tracing SDK
 
 Tracing uses `@coreweave/forge-sdk/agentlens/tracing`. Every turn, chat, tool,
-and subagent span carries `weave.source = forge-integration`.
-`weave.integration.name = forge-openclaw` identifies this integration;
-its version remains separate. The OTLP resource reports
+and subagent span carries `forge.integration.name = forge-openclaw` and
+`forge.integration.version`. The OTLP resource reports
 `wandb.sdk.name = forge`. Plugin configuration and credential precedence are unchanged.
 
 ## Requirements
@@ -37,8 +36,11 @@ so both integrations do not export duplicate traces. Move the settings from
 `forge` in `plugins.allow`. Configuration fields and W&B credentials are unchanged.
 There is no legacy plugin-ID or command alias.
 
-The `weave.*` telemetry keys, W&B API/environment names, and `/weave/agents`
-dashboard route are backend contracts and intentionally retain their names.
+Span attributes moved from `weave.*` to `forge.*`; for example, `weave.outcome`
+is now `forge.outcome`. Agent version, ID, and description use the
+`gen_ai.agent.*` semantic conventions, and `weave.source` was removed. Only
+`weave.compaction.*` keeps its name, because the Weave backend reads it. W&B API
+and environment names and the `/weave/agents` dashboard route are unchanged.
 Repository links still target `wandb/weave-openclaw` until its external rename.
 
 ## Setup

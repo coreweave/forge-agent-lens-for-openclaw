@@ -16,11 +16,11 @@ export function createTurnHookHandlers(deps: HandlerDeps): {
       const turn = deps.registries.turns.get(event.runId);
       if (!turn) return;
       const attrs: Record<string, string | number | boolean> = {
-        "weave.agent.success": event.success,
+        "forge.agent.success": event.success,
       };
-      if (event.error) attrs["weave.agent.error"] = event.error;
+      if (event.error) attrs["forge.agent.error"] = event.error;
       if (event.durationMs !== undefined && Number.isFinite(event.durationMs)) {
-        attrs["weave.agent.duration_ms"] = Math.trunc(event.durationMs);
+        attrs["forge.agent.duration_ms"] = Math.trunc(event.durationMs);
       }
       turn.setAttributes(attrs);
     },
@@ -33,12 +33,12 @@ export function createTurnHookHandlers(deps: HandlerDeps): {
       const turn = deps.registries.turns.get(event.runId);
       if (!turn) return;
       const attrs: Record<string, string | number | boolean> = {
-        "weave.message.from": event.from,
-        "weave.message.channel": ctx.channelId,
+        "forge.message.from": event.from,
+        "forge.message.channel": ctx.channelId,
       };
       const resolved = deps.getResolved();
       if (resolved?.captureContent) {
-        attrs["weave.message.content"] = event.content;
+        attrs["forge.message.content"] = event.content;
       }
       turn.addEvent("message_received", attrs);
     },
