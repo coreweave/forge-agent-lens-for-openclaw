@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
-// SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-PackageName: forge-openclaw
 
-import { runIsolated, startTurn } from "weave";
+import { runIsolated, startTurn } from "@coreweave/forge-sdk/agentlens/tracing";
 import type { DiagnosticEventPayload } from "openclaw/plugin-sdk/diagnostic-runtime";
 import type { HandlerDeps } from "../deps.js";
 import { getOrCreateConversation } from "../hooks/session.js";

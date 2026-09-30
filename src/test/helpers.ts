@@ -1,29 +1,21 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
-// SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-PackageName: forge-openclaw
 
 import { vi, beforeEach } from "vitest";
 import { InMemorySpanExporter, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-base";
-import { createWeaveHookState } from "../state/hook-state.js";
-
-// vi.mock("weave", ...) must stay in each test file: vitest hoists it to the top
-// of the importing file, so it can't move here. The exporter + warmup-pin setup
-// is not file-specific though, so pinInMemoryExporter() centralizes it; each
-// file calls it once for its own exporter (the SDK tracing provider is
-// first-call-wins per process, and vitest isolates test files).
+import { createForgeHookState } from "../state/hook-state.js";
 
 export function makeLogger() {
   return { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() };
 }
 
 export async function bootPlugin(extraConfig: Record<string, unknown> = {}) {
-  // Plugin module is imported dynamically so vi.mock("weave", ...) (hoisted in
-  // each test file) is in place before plugin.ts's transitive weave imports
-  // resolve — a static import here pins the unmocked module too eagerly.
-  const { createWeavePlugin } = await import("../plugin.js");
-  const hookState = createWeaveHookState();
+  // Import after the SDK export destination has been replaced below.
+  const { createForgePlugin } = await import("../plugin.js");
+  const hookState = createForgeHookState();
   const logger = makeLogger();
-  const plugin = createWeavePlugin({
+  const plugin = createForgePlugin({
     pluginConfig: {
       entity: "my-team",
       project: "my-project",
@@ -55,24 +47,23 @@ export function makeFakeApi(plugin: any) {
   };
 }
 
-// Pin a fresh InMemorySpanExporter as the weave provider (the warmup turn forces
-// it to build) before the plugin's init() builds a real OTLP one. Warm up with the
-// SAME projectId the plugin uses (my-team/my-project): weave rebuilds the provider
-// on a project switch, which would drop our exporter.
+// Keep the real Forge provider and span emitters; replace only its export destination.
+let exporter: InMemorySpanExporter;
+vi.mock("@coreweave/forge-sdk/agentlens/tracing", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@coreweave/forge-sdk/agentlens/tracing")>();
+  return {
+    ...actual,
+    init: async (project: string, options: Parameters<typeof actual.init>[1]) => {
+      const next = new InMemorySpanExporter();
+      await actual.init(project, { ...options, spanProcessor: new SimpleSpanProcessor(next) });
+      exporter = next;
+    },
+  };
+});
+
 export function pinInMemoryExporter() {
-  const exporter = new InMemorySpanExporter();
-  beforeEach(async () => {
-    exporter.reset();
-    vi.stubEnv("WANDB_API_KEY", "test-key");
-    // Dynamic import so the per-file vi.mock("weave", ...) is applied first.
-    const { init: weaveInit, startTurn } = await import("weave");
-    await weaveInit("my-team/my-project", {
-      genai: { spanProcessor: new SimpleSpanProcessor(exporter) },
-    });
-    startTurn({ agentName: "warmup" }).end();
-    exporter.reset();
-  });
-  return exporter;
+  beforeEach(() => vi.stubEnv("WANDB_API_KEY", "test-key"));
+  return { getFinishedSpans: () => exporter.getFinishedSpans() };
 }
 
 // Diagnostic-event builders. The plugin correlates open/close events by id

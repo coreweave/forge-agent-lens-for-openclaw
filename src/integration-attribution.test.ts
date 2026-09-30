@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
-// SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-PackageName: forge-openclaw
 
 // Integration identity must land on EVERY span, not just the invoke_agent root,
 // so the backend can group/filter chat/tool spans by integration too. Set once at
-// the trace root (Conversation, or a rootless Turn); weave propagates it down the
+// the trace root (Conversation, or a rootless Turn); the SDK propagates it down the
 // handle chain, which survives each span opening in its own runIsolated frame.
 
 import { describe, it, expect, vi, assert } from "vitest";
@@ -19,11 +19,6 @@ import {
   toolCompleted,
 } from "./test/helpers.js";
 import { PACKAGE_NAME, PACKAGE_VERSION } from "./config/version.js";
-
-vi.mock("weave", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("weave")>();
-  return { ...actual, login: vi.fn().mockResolvedValue(undefined) };
-});
 
 const exporter = pinInMemoryExporter();
 
@@ -42,14 +37,17 @@ describe("integration attribution", () => {
     await finish();
 
     const spans = exporter.getFinishedSpans();
-    const turn = spans.find(s => s.name === "invoke_agent");
-    const chat = spans.find(s => s.name === "chat");
-    const tool = spans.find(s => s.name === "execute_tool");
+    const turn = spans.find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
+    const chat = spans.find(s => s.attributes["gen_ai.operation.name"] === "chat");
+    const tool = spans.find(s => s.attributes["gen_ai.operation.name"] === "execute_tool");
     assert(turn);
     assert(chat);
     assert(tool);
 
     for (const span of [turn, chat, tool]) {
+      expect(span.attributes["weave.source"]).toBe("forge-integration");
+      expect(span.resource.attributes["wandb.sdk.name"]).toBe("forge");
+      expect(span.resource.attributes["service.name"]).toBe("openclaw-agent");
       expect(span.attributes["weave.integration.name"]).toBe(PACKAGE_NAME);
       expect(span.attributes["weave.integration.version"]).toBe(PACKAGE_VERSION);
     }
@@ -70,14 +68,17 @@ describe("integration attribution", () => {
     await finish();
 
     const spans = exporter.getFinishedSpans();
-    const turn = spans.find(s => s.name === "invoke_agent");
-    const chat = spans.find(s => s.name === "chat");
-    const tool = spans.find(s => s.name === "execute_tool");
+    const turn = spans.find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
+    const chat = spans.find(s => s.attributes["gen_ai.operation.name"] === "chat");
+    const tool = spans.find(s => s.attributes["gen_ai.operation.name"] === "execute_tool");
     assert(turn);
     assert(chat);
     assert(tool);
 
     for (const span of [turn, chat, tool]) {
+      expect(span.attributes["weave.source"]).toBe("forge-integration");
+      expect(span.resource.attributes["wandb.sdk.name"]).toBe("forge");
+      expect(span.resource.attributes["service.name"]).toBe("openclaw-agent");
       expect(span.attributes["weave.integration.name"]).toBe(PACKAGE_NAME);
       expect(span.attributes["weave.integration.version"]).toBe(PACKAGE_VERSION);
     }

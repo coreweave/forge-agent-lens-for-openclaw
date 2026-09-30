@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
-// SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-PackageName: forge-openclaw
 
 import { BoundedMap } from "../util/bounded-map.js";
 import type { LlmUsage } from "../handlers/hook-types.js";
@@ -30,7 +30,7 @@ type ToolCallResultCapture = {
   result?: unknown;
 };
 
-export type WeaveHookState = {
+export type ForgeHookState = {
   llmInputs: BoundedMap<string, LlmInputCapture>; // keyed by callId, not runId
   systemPromptByRun: BoundedMap<string, string>; // reused by every model call in an attempt
   currentCallByRun: BoundedMap<string, string>; // keyed by runId
@@ -42,7 +42,7 @@ export type WeaveHookState = {
   assistantOutputByCall: BoundedMap<string, AssistantOutputCapture>; // keyed by callId
 };
 
-export function createWeaveHookState(): WeaveHookState {
+export function createForgeHookState(): ForgeHookState {
   return {
     llmInputs: new BoundedMap(),
     systemPromptByRun: new BoundedMap(),
@@ -56,7 +56,7 @@ export function createWeaveHookState(): WeaveHookState {
 }
 
 export function beginModelCall(
-  state: WeaveHookState,
+  state: ForgeHookState,
   runId: string,
   callId: string,
 ): void {
@@ -70,7 +70,7 @@ export function beginModelCall(
 }
 
 export function bufferPendingLlmInputForRun(
-  state: WeaveHookState,
+  state: ForgeHookState,
   runId: string,
   capture: LlmInputCapture,
 ): void {
@@ -79,7 +79,7 @@ export function bufferPendingLlmInputForRun(
 }
 
 export function resolveCurrentCallId(
-  state: WeaveHookState,
+  state: ForgeHookState,
   runId: string | undefined,
 ): string | undefined {
   if (!runId) return undefined;
@@ -87,7 +87,7 @@ export function resolveCurrentCallId(
 }
 
 export function captureLlmInput(
-  state: WeaveHookState,
+  state: ForgeHookState,
   callId: string,
   capture: LlmInputCapture,
 ): void {
@@ -95,7 +95,7 @@ export function captureLlmInput(
 }
 
 export function captureAssistantOutput(
-  state: WeaveHookState,
+  state: ForgeHookState,
   callId: string,
   capture: AssistantOutputCapture,
 ): void {
@@ -103,7 +103,7 @@ export function captureAssistantOutput(
 }
 
 export function captureToolStart(
-  state: WeaveHookState,
+  state: ForgeHookState,
   toolCallId: string,
   capture: ToolCallArgsCapture,
 ): void {
@@ -112,7 +112,7 @@ export function captureToolStart(
 }
 
 export function captureToolEnd(
-  state: WeaveHookState,
+  state: ForgeHookState,
   toolCallId: string,
   capture: ToolCallResultCapture,
 ): void {
@@ -121,7 +121,7 @@ export function captureToolEnd(
 }
 
 export function lookupToolCall(
-  state: WeaveHookState,
+  state: ForgeHookState,
   toolCallId: string | undefined,
 ): { args?: ToolCallArgsCapture; result?: ToolCallResultCapture } {
   if (!toolCallId) return {};

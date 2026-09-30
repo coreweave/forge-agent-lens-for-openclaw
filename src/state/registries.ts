@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
-// SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-PackageName: forge-openclaw
 
-import type { Conversation, LLM, SubAgent, Tool, Turn } from "weave";
+import type { Conversation, LLM, SubAgent, Tool, Turn } from "@coreweave/forge-sdk/agentlens/tracing";
 import { BoundedMap } from "../util/bounded-map.js";
 
 // Held open until run.completed so per-attempt llm_output attaches before .end().

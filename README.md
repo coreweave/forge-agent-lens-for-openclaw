@@ -1,18 +1,26 @@
-# weave-openclaw
+# forge-openclaw
 
-[![npm version](https://img.shields.io/npm/v/weave-openclaw.svg)](https://www.npmjs.com/package/weave-openclaw)
-[![ClawHub plugin](https://img.shields.io/badge/ClawHub-plugin-orange.svg)](https://clawhub.ai/wandb/plugins/weave-openclaw)
+[![npm version](https://img.shields.io/npm/v/forge-openclaw.svg)](https://www.npmjs.com/package/forge-openclaw)
+[![ClawHub plugin](https://img.shields.io/badge/ClawHub-plugin-orange.svg)](https://clawhub.ai/wandb/plugins/forge-openclaw)
 [![CI](https://github.com/wandb/weave-openclaw/actions/workflows/ci.yml/badge.svg)](https://github.com/wandb/weave-openclaw/actions/workflows/ci.yml)
-[![license](https://img.shields.io/npm/l/weave-openclaw.svg)](./LICENSE)
-[![node](https://img.shields.io/node/v/weave-openclaw.svg)](./package.json)
+[![license](https://img.shields.io/npm/l/forge-openclaw.svg)](./LICENSE)
+[![node](https://img.shields.io/node/v/forge-openclaw.svg)](./package.json)
 
 OpenClaw plugin for tracing agent runs, model calls, tool calls, tokens, and
-costs in [W&B Weave](https://wandb.ai/site/weave).
+costs in CoreWeave Forge.
 
 > [!WARNING]
 > `captureContent` defaults to `true`. Prompts, replies, and tool inputs and
 > results are sent unredacted to W&B. Set it to `false` to record only trace
 > structure, tokens, and costs.
+
+## Tracing SDK
+
+Tracing uses `@coreweave/forge-sdk/agentlens/tracing`. Every turn, chat, tool,
+and subagent span carries `weave.source = forge-integration`.
+`weave.integration.name = forge-openclaw` identifies this integration;
+its version remains separate. The OTLP resource reports
+`wandb.sdk.name = forge`. Plugin configuration and credential precedence are unchanged.
 
 ## Requirements
 
@@ -20,12 +28,29 @@ costs in [W&B Weave](https://wandb.ai/site/weave).
 - OpenClaw >= 2026.4.25
 - A [W&B account](https://wandb.ai) and project
 
+## Migration from weave-openclaw
+
+The plugin ID and status command are now `forge` and `/forge status`.
+Disable and uninstall the old `weave` plugin before installing this package
+so both integrations do not export duplicate traces. Move the settings from
+`plugins.entries.weave` to `plugins.entries.forge`, and replace `weave` with
+`forge` in `plugins.allow`. Configuration fields and W&B credentials are unchanged.
+There is no legacy plugin-ID or command alias.
+
+The `weave.*` telemetry keys, W&B API/environment names, and `/weave/agents`
+dashboard route are backend contracts and intentionally retain their names.
+Repository links still target `wandb/weave-openclaw` until its external rename.
+
 ## Setup
+
+The commands below target the renamed release; this local change does not
+publish npm or ClawHub packages. Development uses the published
+`@coreweave/forge-sdk@0.1.0-beta.0` prerelease, pinned exactly for reproducibility.
 
 Install the plugin:
 
 ```bash
-openclaw plugins install clawhub:@wandb/weave-openclaw
+openclaw plugins install clawhub:@wandb/forge-openclaw
 ```
 
 Export a [W&B API key](https://wandb.ai/authorize):
@@ -40,9 +65,9 @@ Add the plugin to `~/.openclaw/openclaw.json`:
 {
   diagnostics: { enabled: true },
   plugins: {
-    allow: ["weave"],
+    allow: ["forge"],
     entries: {
-      weave: {
+      forge: {
         enabled: true,
         config: { entity: "your-team", project: "your-project" },
         hooks: { allowConversationAccess: true },
@@ -58,7 +83,7 @@ Restart the gateway if needed:
 openclaw gateway restart
 ```
 
-Run `/weave status` in a chat. When it reports `running`, view traces at:
+Run `/forge status` in a chat. When it reports `running`, view traces at:
 
 ```text
 https://wandb.ai/<entity>/<project>/weave/agents
@@ -69,7 +94,7 @@ token counts. Without it, trace structure, tool calls, and run totals still
 work. `diagnostics.enabled: false` disables tracing.
 
 See the [full setup guide](https://docs.wandb.ai/weave/guides/integrations/agents/openclaw-harness)
-and [ClawHub listing](https://clawhub.ai/wandb/plugins/weave-openclaw).
+and [ClawHub listing](https://clawhub.ai/wandb/plugins/forge-openclaw).
 
 ## Configuration
 
@@ -80,7 +105,7 @@ default.
 {
   plugins: {
     entries: {
-      weave: {
+      forge: {
         enabled: true,
         config: {
           entity: "your-team",        // your W&B team or username
@@ -93,7 +118,7 @@ default.
           //   apiKey: "your-wandb-api-key"
           apiKey: { source: "env", provider: "default", id: "WANDB_API_KEY" },
 
-          serviceName: "openclaw-agent",   // shown in /weave status
+          serviceName: "openclaw-agent",   // shown in /forge status
           // These help group and label your agents in the dashboard.
           agentName: "my-agent",
           agentVersion: "v1.0",
@@ -132,8 +157,8 @@ OpenClaw also loads `WANDB_API_KEY` from `~/.openclaw/.env`. Set
 
 | Problem | Check |
 |---|---|
-| `/weave status` is not `running` | Check `entity`, `project`, the plugin version, and gateway logs. |
-| No traces | Ensure diagnostics are enabled and the configured project matches `/weave status`. |
+| `/forge status` is not `running` | Check `entity`, `project`, the plugin version, and gateway logs. |
+| No traces | Ensure diagnostics are enabled and the configured project matches `/forge status`. |
 | Blank messages or model calls | Set `hooks.allowConversationAccess: true` and restart. |
 | `401` or `403` | Refresh the API key and confirm project access. |
 | `404` on self-hosted W&B | Check `WANDB_BASE_URL`. |
@@ -142,23 +167,23 @@ OpenClaw also loads `WANDB_API_KEY` from `~/.openclaw/.env`. Set
 ## Manage the plugin
 
 ```bash
-openclaw plugins update weave
-openclaw plugins disable weave
-openclaw plugins enable weave
-openclaw plugins uninstall weave
+openclaw plugins update forge
+openclaw plugins disable forge
+openclaw plugins enable forge
+openclaw plugins uninstall forge
 ```
 
 ## Development
 
 ```bash
-pnpm install --frozen-lockfile
-pnpm check
+npx pnpm@9 install --frozen-lockfile
+npx pnpm@9 check
 
 openclaw plugins install --link .
 openclaw gateway restart
-openclaw plugins inspect weave --runtime --json
+openclaw plugins inspect forge --runtime --json
 ```
 
 ## License
 
-[MIT](./LICENSE)
+[Apache License 2.0](./LICENSE)

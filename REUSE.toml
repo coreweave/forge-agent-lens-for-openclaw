@@ -1,5 +1,5 @@
 version = 1
-SPDX-PackageName = "weave-openclaw"
+SPDX-PackageName = "forge-openclaw"
 SPDX-PackageSupplier = "CoreWeave, Inc."
 SPDX-PackageDownloadLocation = "https://github.com/wandb/weave-openclaw"
 
@@ -7,4 +7,4 @@ SPDX-PackageDownloadLocation = "https://github.com/wandb/weave-openclaw"
 path = "**"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 CoreWeave, Inc."
-SPDX-License-Identifier = "MIT"
+SPDX-License-Identifier = "Apache-2.0"

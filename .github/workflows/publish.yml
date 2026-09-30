@@ -87,7 +87,7 @@ jobs:
         run: |
           set -euo pipefail
           PACKAGE_VERSION="${RELEASE_REF#v}"
-          if npm view "weave-openclaw@${PACKAGE_VERSION}" version --registry=https://registry.npmjs.org >/dev/null 2>&1; then
+          if npm view "forge-openclaw@${PACKAGE_VERSION}" version --registry=https://registry.npmjs.org >/dev/null 2>&1; then
             echo "::error::Version ${PACKAGE_VERSION} is already published to npm"
             exit 1
           fi
@@ -110,12 +110,12 @@ jobs:
       - name: Build package
         run: pnpm build
 
-      # package.json carries the scoped name (@wandb/weave-openclaw) so ClawHub
-      # publishing works, where the scope must match the publish owner. npm keeps
-      # the original unscoped name, so rewrite it back before publishing here.
+      # package.json carries the scoped name (@wandb/forge-openclaw) so ClawHub
+      # publishing works, where the scope must match the publish owner. npm uses
+      # the unscoped name, so rewrite it before publishing here.
       - name: Publish to npm (unscoped name)
         run: |
-          npm pkg set name=weave-openclaw
+          npm pkg set name=forge-openclaw
           pnpm publish --no-git-checks --access public
 
   publish-clawhub:

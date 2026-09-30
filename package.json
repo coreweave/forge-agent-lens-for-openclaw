@@ -1,8 +1,8 @@
 {
-  "name": "@wandb/weave-openclaw",
+  "name": "@wandb/forge-openclaw",
   "version": "0.1.5",
-  "description": "OpenClaw plugin that traces agent sessions to W&B Weave for observability and debugging.",
-  "license": "MIT",
+  "description": "OpenClaw plugin that traces agent sessions to CoreWeave Forge for observability and debugging.",
+  "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -21,7 +21,10 @@
     "!src/test/",
     "openclaw.plugin.json",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "LICENSES/",
+    "NOTICE",
+    "REUSE.toml"
   ],
   "openclaw": {
     "extensions": [
@@ -37,8 +40,8 @@
       "openclawVersion": "2026.4.25"
     },
     "install": {
-      "clawhubSpec": "clawhub:@wandb/weave-openclaw",
-      "npmSpec": "weave-openclaw",
+      "clawhubSpec": "clawhub:@wandb/forge-openclaw",
+      "npmSpec": "forge-openclaw",
       "defaultChoice": "clawhub"
     },
     "release": {
@@ -46,11 +49,12 @@
     }
   },
   "dependencies": {
+    "@coreweave/forge-sdk": "0.1.0-beta.0",
     "@opentelemetry/api": "^1.9.1",
-    "weave": "^0.16.3"
+    "netrc-parser": "^3.1.6"
   },
   "devDependencies": {
-    "@opentelemetry/sdk-trace-base": "^1.26.0",
+    "@opentelemetry/sdk-trace-base": "^2.11.0",
     "@types/node": "^22.10.0",
     "openclaw": ">=2026.6.5",
     "typescript": "^5.6.0",

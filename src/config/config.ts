@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
-// SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-PackageName: forge-openclaw
 
 import type { OpenClawConfig } from "openclaw/plugin-sdk/plugin-entry";
 import { resolveConfiguredSecretInputString } from "openclaw/plugin-sdk/secret-input-runtime";
@@ -12,7 +12,7 @@ const MIN_FLUSH_INTERVAL_MS = 1000;
 const DEFAULT_SERVICE_NAME = "openclaw-agent";
 // Fallback agent name for Sessions and Turns when config sets no agentName.
 const DEFAULT_AGENT_NAME = "openclaw-agent";
-const API_KEY_CONFIG_PATH = "plugins.entries.weave.config.apiKey";
+const API_KEY_CONFIG_PATH = "plugins.entries.forge.config.apiKey";
 
 // Raw plugin settings from openclaw.plugin.json. `entity` and `project` are required (resolveConfig
 // throws when either is unset/empty); projectId is always `entity/project`. resolveConfig() applies
@@ -54,9 +54,9 @@ type ResolveContext = {
 
 export async function resolveConfig(raw: RawConfig, ctx: ResolveContext): Promise<ResolvedConfig> {
   const entity = raw.entity?.trim();
-  if (!entity) throw new Error("weave: entity is required; set it in the plugin config");
+  if (!entity) throw new Error("forge: entity is required; set it in the plugin config");
   const project = raw.project?.trim();
-  if (!project) throw new Error("weave: project is required; set it in the plugin config");
+  if (!project) throw new Error("forge: project is required; set it in the plugin config");
 
   const apiKey = raw.apiKey ? await resolveApiKey(raw.apiKey, ctx) : undefined;
 
@@ -83,7 +83,7 @@ export async function resolveConfig(raw: RawConfig, ctx: ResolveContext): Promis
 
 // Resolve a literal or SecretRef apiKey via OpenClaw's secret resolver, which reads env/file/exec
 // through the operator's configured `secrets.providers` (env "default" works with no config; file
-// and exec require a configured provider). authSource is derived from the raw shape for /weave status.
+// and exec require a configured provider). authSource is derived from the raw shape for /forge status.
 async function resolveApiKey(
   raw: string | SecretRef,
   ctx: ResolveContext,
@@ -96,7 +96,7 @@ async function resolveApiKey(
     unresolvedReasonStyle: "detailed",
   });
   if (!resolved.value) {
-    throw new Error(`weave: ${resolved.unresolvedRefReason ?? "apiKey resolved to an empty value"}`);
+    throw new Error(`forge: ${resolved.unresolvedRefReason ?? "apiKey resolved to an empty value"}`);
   }
   return {
     value: resolved.value,

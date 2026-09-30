@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
-// SPDX-License-Identifier: MIT
-// SPDX-PackageName: weave-openclaw
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-PackageName: forge-openclaw
 
 import { describe, it, expect, afterEach, vi, assert } from "vitest";
-import { createWeaveHookState } from "./state/hook-state.js";
+import { createForgeHookState } from "./state/hook-state.js";
 import { PACKAGE_VERSION } from "./config/version.js";
 import {
   bootPlugin,
@@ -24,24 +24,18 @@ import {
   assistantMessage,
 } from "./test/helpers.js";
 
-// Stub weave.login so tests don't hit the live server or write ~/.netrc.
-vi.mock("weave", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("weave")>();
-  return { ...actual, login: vi.fn().mockResolvedValue(undefined) };
-});
-
 const exporter = pinInMemoryExporter();
 
-describe("createWeavePlugin lifecycle", () => {
+describe("createForgePlugin lifecycle", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
 
   it("starts running and exposes a config snapshot, then stops", async () => {
-    const { createWeavePlugin } = await import("./plugin.js");
-    const plugin = createWeavePlugin({
+    const { createForgePlugin } = await import("./plugin.js");
+    const plugin = createForgePlugin({
       pluginConfig: { entity: "my-team", project: "my-project", apiKey: "k", serviceName: "openclaw-agent" },
-      hookState: createWeaveHookState(),
+      hookState: createForgeHookState(),
     });
     await plugin.service.start({ logger: makeLogger(), config: {} } as any);
     const status = plugin.getStatus();
@@ -57,25 +51,25 @@ describe("createWeavePlugin lifecycle", () => {
   });
 
   it("stays out of running when disabled or when config resolution fails", async () => {
-    const { createWeavePlugin } = await import("./plugin.js");
+    const { createForgePlugin } = await import("./plugin.js");
 
     const disabledLog = makeLogger();
-    const disabled = createWeavePlugin({
+    const disabled = createForgePlugin({
       pluginConfig: { enabled: false, entity: "my-team", project: "my-project" },
-      hookState: createWeaveHookState(),
+      hookState: createForgeHookState(),
     });
     await disabled.service.start({ logger: disabledLog, config: {} } as any);
     expect(disabled.getStatus().lifecycle).toBe("disabled");
     expect(disabledLog.warn).toHaveBeenCalled();
 
     const errorLog = makeLogger();
-    const errored = createWeavePlugin({
+    const errored = createForgePlugin({
       pluginConfig: {
         entity: "my-team",
         project: "my-project",
         apiKey: { source: "file", id: "/tmp/weave-missing-key-" + Date.now(), provider: "x" },
       },
-      hookState: createWeaveHookState(),
+      hookState: createForgeHookState(),
     });
     await errored.service.start({ logger: errorLog, config: {} } as any);
     expect(errored.getStatus().lifecycle).toBe("config-error");
@@ -91,25 +85,24 @@ describe("turn lifecycle", () => {
     runCompleted(dispatch, { runId: "r-1" });
     await finish();
     expect(plugin.registries.turns.has("r-1")).toBe(false);
-    const turn = exporter.getFinishedSpans().find(s => s.name === "invoke_agent");
+    const turn = exporter.getFinishedSpans().find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
     assert(turn);
     // Pin the version by value once, against the source constant, so a bump
     // never has to be hand-edited; the snapshots below match it as Any<String>.
     expect(turn.attributes["weave.agent.version"]).toBe(PACKAGE_VERSION);
     expect(turn.attributes).toMatchInlineSnapshot(
-      { "weave.agent.version": expect.any(String), "weave.integration.version": expect.any(String) },
-      `
+      { "weave.agent.version": expect.any(String), "weave.integration.version": expect.any(String) }, `
       {
         "gen_ai.agent.name": "openclaw-agent",
         "gen_ai.conversation.id": "s",
         "gen_ai.operation.name": "invoke_agent",
         "weave.agent.version": Any<String>,
-        "weave.integration.name": "weave-openclaw",
+        "weave.integration.name": "forge-openclaw",
         "weave.integration.version": Any<String>,
         "weave.outcome": "completed",
+        "weave.source": "forge-integration",
       }
-    `,
-    );
+    `);
   });
 
   it("maps outcome to span status: aborted stays OK, error marks ERROR (weave.outcome stamped)", async () => {
@@ -119,7 +112,7 @@ describe("turn lifecycle", () => {
     runStarted(dispatch, { runId: "r-bad", sessionKey: "s-bad" });
     runCompleted(dispatch, { runId: "r-bad", outcome: "error", sessionKey: "s-bad" });
     await finish();
-    const spans = exporter.getFinishedSpans().filter(s => s.name === "invoke_agent");
+    const spans = exporter.getFinishedSpans().filter(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
     const aborted = spans.find(s => s.attributes["weave.outcome"] === "aborted");
     const errored = spans.find(s => s.attributes["weave.outcome"] === "error");
     assert(aborted);
@@ -142,7 +135,7 @@ describe("turn lifecycle", () => {
     const spans = exporter.getFinishedSpans();
     expect(spans.map(s => s.name)).toMatchInlineSnapshot(`
       [
-        "invoke_agent",
+        "invoke_agent openclaw-agent",
       ]
     `);
     expect(spans[0].attributes["gen_ai.conversation.id"]).toBe("s-1");
@@ -160,11 +153,10 @@ describe("turn lifecycle", () => {
     dispatch.hook("agent_end", { runId: "r-false", success: false });
     runCompleted(dispatch, { runId: "r-false" });
     await finish();
-    const spans = exporter.getFinishedSpans().filter(s => s.name === "invoke_agent");
+    const spans = exporter.getFinishedSpans().filter(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
     expect(spans).toHaveLength(3);
     expect(spans[0].attributes).toMatchInlineSnapshot(
-      { "weave.agent.version": expect.any(String), "weave.integration.version": expect.any(String) },
-      `
+      { "weave.agent.version": expect.any(String), "weave.integration.version": expect.any(String) }, `
       {
         "gen_ai.agent.name": "openclaw-agent",
         "gen_ai.conversation.id": "s",
@@ -172,42 +164,40 @@ describe("turn lifecycle", () => {
         "weave.agent.duration_ms": 1500,
         "weave.agent.success": true,
         "weave.agent.version": Any<String>,
-        "weave.integration.name": "weave-openclaw",
+        "weave.integration.name": "forge-openclaw",
         "weave.integration.version": Any<String>,
         "weave.outcome": "completed",
+        "weave.source": "forge-integration",
       }
-    `,
-    );
+    `);
     expect(spans[1].attributes).toMatchInlineSnapshot(
-      { "weave.agent.version": expect.any(String), "weave.integration.version": expect.any(String) },
-      `
+      { "weave.agent.version": expect.any(String), "weave.integration.version": expect.any(String) }, `
       {
         "gen_ai.agent.name": "openclaw-agent",
         "gen_ai.conversation.id": "s",
         "gen_ai.operation.name": "invoke_agent",
         "weave.agent.duration_ms": 100,
         "weave.agent.version": Any<String>,
-        "weave.integration.name": "weave-openclaw",
+        "weave.integration.name": "forge-openclaw",
         "weave.integration.version": Any<String>,
         "weave.outcome": "completed",
+        "weave.source": "forge-integration",
       }
-    `,
-    );
+    `);
     expect(spans[2].attributes).toMatchInlineSnapshot(
-      { "weave.agent.version": expect.any(String), "weave.integration.version": expect.any(String) },
-      `
+      { "weave.agent.version": expect.any(String), "weave.integration.version": expect.any(String) }, `
       {
         "gen_ai.agent.name": "openclaw-agent",
         "gen_ai.conversation.id": "s",
         "gen_ai.operation.name": "invoke_agent",
         "weave.agent.success": false,
         "weave.agent.version": Any<String>,
-        "weave.integration.name": "weave-openclaw",
+        "weave.integration.name": "forge-openclaw",
         "weave.integration.version": Any<String>,
         "weave.outcome": "completed",
+        "weave.source": "forge-integration",
       }
-    `,
-    );
+    `);
   });
 });
 
@@ -226,17 +216,16 @@ describe("llm two-signal close", () => {
     runCompleted(dispatch);
     expect(hookState.systemPromptByRun.has("r")).toBe(false);
     await finish();
-    const chat = exporter.getFinishedSpans().find(s => s.name === "chat");
-    const turn = exporter.getFinishedSpans().find(s => s.name === "invoke_agent");
+    const chat = exporter.getFinishedSpans().find(s => s.attributes["gen_ai.operation.name"] === "chat");
+    const turn = exporter.getFinishedSpans().find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
     assert(chat);
     assert(turn);
     // chat span nests under the invoke_agent Turn
-    expect(chat.parentSpanId).toBe(turn.spanContext().spanId);
+    expect(chat.parentSpanContext?.spanId).toBe(turn.spanContext().spanId);
     // System instructions use their dedicated semantic-convention field instead
     // of being mixed into the ordinary conversation messages.
     expect(chat.attributes).toMatchInlineSnapshot(
-      { "weave.integration.version": expect.any(String) },
-      `
+      { "weave.integration.version": expect.any(String) }, `
       {
         "gen_ai.conversation.id": "s",
         "gen_ai.input.messages": "[{"role":"user","content":"hi"}]",
@@ -246,8 +235,9 @@ describe("llm two-signal close", () => {
         "gen_ai.system_instructions": "[{"type":"text","content":"be helpful"}]",
         "gen_ai.usage.input_tokens": 5,
         "gen_ai.usage.output_tokens": 3,
-        "weave.integration.name": "weave-openclaw",
+        "weave.integration.name": "forge-openclaw",
         "weave.integration.version": Any<String>,
+        "weave.source": "forge-integration",
       }
     `);
     expect(turn.attributes["gen_ai.system_instructions"]).toBe(
@@ -267,8 +257,8 @@ describe("llm two-signal close", () => {
     runCompleted(dispatch);
     await finish();
 
-    const chat = exporter.getFinishedSpans().find(s => s.name === "chat");
-    const turn = exporter.getFinishedSpans().find(s => s.name === "invoke_agent");
+    const chat = exporter.getFinishedSpans().find(s => s.attributes["gen_ai.operation.name"] === "chat");
+    const turn = exporter.getFinishedSpans().find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
     assert(chat);
     assert(turn);
     expect(chat.attributes["gen_ai.system_instructions"]).toBeUndefined();
@@ -283,7 +273,7 @@ describe("llm two-signal close", () => {
     modelCallError(dispatch, { callId: "c-1", spanId: "sp2", errorCategory: "ProviderTimeout" });
     runCompleted(dispatch);
     await finish();
-    const chat = exporter.getFinishedSpans().find(s => s.name === "chat");
+    const chat = exporter.getFinishedSpans().find(s => s.attributes["gen_ai.operation.name"] === "chat");
     assert(chat);
     expect(chat.status.code).toBe(2);
   });
@@ -305,7 +295,7 @@ describe("per-call output attribution", () => {
     await finish();
     const outputs = exporter
       .getFinishedSpans()
-      .filter(s => s.name === "chat")
+      .filter(s => s.attributes["gen_ai.operation.name"] === "chat")
       .map(s => String(s.attributes["gen_ai.output.messages"] ?? ""));
     expect(outputs.length).toBe(2);
     expect(outputs[0]).toContain("first text");
@@ -326,7 +316,7 @@ describe("usage: input_tokens is the total prompt", () => {
     modelCallCompleted(dispatch, { callId: "c-1", spanId: "cs1" });
     runCompleted(dispatch);
     await finish();
-    const chat = exporter.getFinishedSpans().find(s => s.name === "chat");
+    const chat = exporter.getFinishedSpans().find(s => s.attributes["gen_ai.operation.name"] === "chat");
     assert(chat);
     expect(chat.attributes["gen_ai.usage.input_tokens"]).toBe(105); // 10 + 90 + 5
     expect(chat.attributes["gen_ai.usage.cache_read.input_tokens"]).toBe(90);
@@ -338,7 +328,7 @@ describe("usage: input_tokens is the total prompt", () => {
     modelUsage(dispatch, { runId: "r", usage: { input: 10, output: 4, cacheRead: 90, cacheWrite: 5 } });
     runCompleted(dispatch);
     await finish();
-    const turn = exporter.getFinishedSpans().find(s => s.name === "invoke_agent");
+    const turn = exporter.getFinishedSpans().find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
     assert(turn);
     expect(turn.attributes["gen_ai.usage.input_tokens"]).toBe(105); // 10 + 90 + 5
     expect(turn.attributes["gen_ai.usage.cache_read.input_tokens"]).toBe(90);
@@ -351,7 +341,7 @@ describe("usage: input_tokens is the total prompt", () => {
     modelUsage(dispatch, { runId: "r", usage: { output: 4 } });
     runCompleted(dispatch);
     await finish();
-    const turn = exporter.getFinishedSpans().find(s => s.name === "invoke_agent");
+    const turn = exporter.getFinishedSpans().find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
     assert(turn);
     expect(turn.attributes["gen_ai.usage.input_tokens"]).toBeUndefined();
     expect(turn.attributes["gen_ai.usage.output_tokens"]).toBe(4);
@@ -381,7 +371,7 @@ describe("tool lifecycle", () => {
     assert(ok);
     assert(errored);
     assert(blocked);
-    expect(ok.name).toBe("execute_tool");
+    expect(ok.name).toBe("execute_tool search");
     expect(ok.attributes["gen_ai.tool.name"]).toBe("search");
     expect(ok.attributes["gen_ai.tool.call.arguments"]).toBe('{"q":"weave"}');
     expect(ok.attributes["gen_ai.tool.call.result"]).toBe('{"hits":7}');
@@ -437,7 +427,7 @@ describe("tool lifecycle", () => {
     });
     runCompleted(dispatch);
     await finish();
-    const turn = exporter.getFinishedSpans().find(s => s.name === "invoke_agent");
+    const turn = exporter.getFinishedSpans().find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
     assert(turn);
     const loop = turn.events.find(e => e.name === "tool.loop");
     assert(loop);
@@ -458,7 +448,7 @@ describe("side-channel attrs on Turn", () => {
     modelUsage(dispatch, { usage: { input: 100, output: 50, cacheRead: 200, cacheWrite: 30, total: 380 } });
     runCompleted(dispatch);
     await finish();
-    const turn = exporter.getFinishedSpans().find(s => s.name === "invoke_agent");
+    const turn = exporter.getFinishedSpans().find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
     assert(turn);
     expect(turn.attributes["weave.cost.usd"]).toBeCloseTo(0.15);
     // input_tokens is the total prompt: 100 uncached + 200 cache_read + 30 cache_creation.
@@ -476,7 +466,7 @@ describe("side-channel attrs on Turn", () => {
     dispatch.hook("message_received", { runId: "r", from: "user@example.com", content: "hello" }, { channelId: "telegram" });
     runCompleted(dispatch);
     await finish();
-    const turn = exporter.getFinishedSpans().find(s => s.name === "invoke_agent");
+    const turn = exporter.getFinishedSpans().find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
     assert(turn);
     expect(turn.attributes["weave.context.budget_tokens"]).toBe(200000);
     expect(turn.attributes["weave.context.message_count"]).toBe(12);
@@ -496,7 +486,7 @@ describe("side-channel attrs on Turn", () => {
     dispatch.hook("agent_end", { runId: "r", success: true, durationMs: 1200, messages: [] });
     runCompleted(dispatch);
     await finish();
-    const turn = exporter.getFinishedSpans().find(s => s.name === "invoke_agent");
+    const turn = exporter.getFinishedSpans().find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
     assert(turn);
     expect(turn.events.find(e => e.name === "agent_end_summary")).toBeUndefined();
     expect(turn.attributes["weave.agent.success"]).toBe(true);
@@ -536,8 +526,8 @@ describe("concurrent runs", () => {
     await finish();
 
     const spans = exporter.getFinishedSpans();
-    const turns = spans.filter(s => s.name === "invoke_agent");
-    const chats = spans.filter(s => s.name === "chat");
+    const turns = spans.filter(s => s.attributes["gen_ai.operation.name"] === "invoke_agent");
+    const chats = spans.filter(s => s.attributes["gen_ai.operation.name"] === "chat");
     expect(turns.length).toBe(2);
     expect(chats.length).toBe(2);
     // Each chat's input/output stayed attached to its own run.
@@ -586,7 +576,7 @@ describe("hot-reload / lifecycle", () => {
 describe("subagent and compaction", () => {
   const compactedEvent = () =>
     exporter.getFinishedSpans()
-      .find(s => s.name === "invoke_agent")
+      .find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent")
       ?.events.find(e => e.name === "context_compacted");
 
   it("opens a SubAgent under the requester's Turn with spawned-event attrs; non-ok ends ERROR", async () => {
@@ -605,7 +595,7 @@ describe("subagent and compaction", () => {
     expect(broken.status.code).toBe(2);
     // The requester Turn is the invoke_agent span that recorded the spawn events;
     // sub-agent spans are also invoke_agent but carry the sub's gen_ai.agent.name.
-    const requester = spans.find(s => s.name === "invoke_agent" && s.events.some(e => e.name === "subagent_spawned"));
+    const requester = spans.find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent" && s.events.some(e => e.name === "subagent_spawned"));
     assert(requester);
     const ev = requester.events.find(e => e.name === "subagent_spawned" && e.attributes?.["weave.agent.id"] === "researcher");
     assert(ev);
