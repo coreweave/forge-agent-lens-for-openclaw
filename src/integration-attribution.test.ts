@@ -19,7 +19,7 @@ import {
   toolStarted,
   toolCompleted,
 } from "./test/helpers.js";
-import { PACKAGE_NAME, PACKAGE_VERSION } from "./config/version.js";
+import { PACKAGE_VERSION } from "./config/version.js";
 
 const exporter = pinInMemoryExporter();
 
@@ -48,7 +48,7 @@ describe("integration attribution", () => {
     for (const span of [turn, chat, tool]) {
       expect(span.resource.attributes["wandb.sdk.name"]).toBe("forge");
       expect(span.resource.attributes["service.name"]).toBe("openclaw-agent");
-      expect(span.attributes["forge.integration.name"]).toBe(PACKAGE_NAME);
+      expect(span.attributes["forge.integration.name"]).toBe("forge-agent-lens-for-openclaw");
       expect(span.attributes["forge.integration.version"]).toBe(PACKAGE_VERSION);
     }
   });
@@ -78,7 +78,7 @@ describe("integration attribution", () => {
     for (const span of [turn, chat, tool]) {
       expect(span.resource.attributes["wandb.sdk.name"]).toBe("forge");
       expect(span.resource.attributes["service.name"]).toBe("openclaw-agent");
-      expect(span.attributes["forge.integration.name"]).toBe(PACKAGE_NAME);
+      expect(span.attributes["forge.integration.name"]).toBe("forge-agent-lens-for-openclaw");
       expect(span.attributes["forge.integration.version"]).toBe(PACKAGE_VERSION);
     }
   });
