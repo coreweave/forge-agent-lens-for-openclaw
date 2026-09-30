@@ -1,7 +1,7 @@
 # forge-agent-lens-for-openclaw
 
 [![npm version](https://img.shields.io/npm/v/forge-agent-lens-for-openclaw.svg)](https://www.npmjs.com/package/forge-agent-lens-for-openclaw)
-[![ClawHub plugin](https://img.shields.io/badge/ClawHub-plugin-orange.svg)](https://clawhub.ai/wandb/plugins/forge-agent-lens-for-openclaw)
+[![ClawHub plugin](https://img.shields.io/badge/ClawHub-plugin-orange.svg)](https://clawhub.ai/coreweave/plugins/forge-agent-lens-for-openclaw)
 [![CI](https://github.com/coreweave/forge-agent-lens-for-openclaw/actions/workflows/ci.yml/badge.svg)](https://github.com/coreweave/forge-agent-lens-for-openclaw/actions/workflows/ci.yml)
 [![license](https://img.shields.io/npm/l/forge-agent-lens-for-openclaw.svg)](./LICENSE)
 [![node](https://img.shields.io/node/v/forge-agent-lens-for-openclaw.svg)](./package.json)
@@ -52,7 +52,7 @@ publish npm or ClawHub packages. Development uses the published
 Install the plugin:
 
 ```bash
-openclaw plugins install clawhub:@wandb/forge-agent-lens-for-openclaw
+openclaw plugins install clawhub:@coreweave/forge-agent-lens-for-openclaw
 ```
 
 Export a [W&B API key](https://wandb.ai/authorize):
@@ -96,7 +96,7 @@ token counts. Without it, trace structure, tool calls, and run totals still
 work. `diagnostics.enabled: false` disables tracing.
 
 See the [full setup guide](https://docs.wandb.ai/weave/guides/integrations/agents/openclaw-harness)
-and [ClawHub listing](https://clawhub.ai/wandb/plugins/forge-agent-lens-for-openclaw).
+and [ClawHub listing](https://clawhub.ai/coreweave/plugins/forge-agent-lens-for-openclaw).
 
 ## Configuration
 

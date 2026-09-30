@@ -1,5 +1,5 @@
 {
-  "name": "@wandb/forge-agent-lens-for-openclaw",
+  "name": "@coreweave/forge-agent-lens-for-openclaw",
   "version": "0.1.5",
   "description": "OpenClaw plugin that traces agent sessions to CoreWeave Forge for observability and debugging.",
   "license": "Apache-2.0",
@@ -40,7 +40,7 @@
       "openclawVersion": "2026.4.25"
     },
     "install": {
-      "clawhubSpec": "clawhub:@wandb/forge-agent-lens-for-openclaw",
+      "clawhubSpec": "clawhub:@coreweave/forge-agent-lens-for-openclaw",
       "npmSpec": "forge-agent-lens-for-openclaw",
       "defaultChoice": "clawhub"
     },

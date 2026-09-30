@@ -35,7 +35,7 @@ jobs:
     with:
       source: ${{ github.repository }}
       ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      owner: wandb
+      owner: coreweave
       dry_run: true
       package_artifact_name: clawpack
       source_repo: ${{ github.repository }}

@@ -110,9 +110,10 @@ jobs:
       - name: Build package
         run: pnpm build
 
-      # package.json carries the scoped name (@wandb/forge-agent-lens-for-openclaw)
-      # so ClawHub publishing works, where the scope must match the publish owner.
-      # npm uses the unscoped name, so rewrite it before publishing here.
+      # package.json carries the scoped name
+      # (@coreweave/forge-agent-lens-for-openclaw) so ClawHub publishing works,
+      # where the scope must match the publish owner. npm uses the unscoped name,
+      # so rewrite it before publishing here.
       - name: Publish to npm (unscoped name)
         run: |
           npm pkg set name=forge-agent-lens-for-openclaw
@@ -130,7 +131,7 @@ jobs:
     with:
       source: ${{ github.repository }}
       ref: ${{ github.event.inputs.release_ref }}
-      owner: wandb
+      owner: coreweave
       dry_run: false
       package_artifact_name: clawpack
       source_repo: ${{ github.repository }}
