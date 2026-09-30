@@ -1,10 +1,10 @@
 # forge-agent-lens-for-openclaw
 
-[![npm version](https://img.shields.io/npm/v/forge-agent-lens-for-openclaw.svg)](https://www.npmjs.com/package/forge-agent-lens-for-openclaw)
+[![npm version](https://img.shields.io/npm/v/@coreweave/forge-agent-lens-for-openclaw.svg)](https://www.npmjs.com/package/@coreweave/forge-agent-lens-for-openclaw)
 [![ClawHub plugin](https://img.shields.io/badge/ClawHub-plugin-orange.svg)](https://clawhub.ai/coreweave/plugins/forge-agent-lens-for-openclaw)
 [![CI](https://github.com/coreweave/forge-agent-lens-for-openclaw/actions/workflows/ci.yml/badge.svg)](https://github.com/coreweave/forge-agent-lens-for-openclaw/actions/workflows/ci.yml)
-[![license](https://img.shields.io/npm/l/forge-agent-lens-for-openclaw.svg)](./LICENSE)
-[![node](https://img.shields.io/node/v/forge-agent-lens-for-openclaw.svg)](./package.json)
+[![license](https://img.shields.io/npm/l/@coreweave/forge-agent-lens-for-openclaw.svg)](./LICENSE)
+[![node](https://img.shields.io/node/v/@coreweave/forge-agent-lens-for-openclaw.svg)](./package.json)
 
 OpenClaw plugin for tracing agent runs, model calls, tool calls, tokens, and
 costs in CoreWeave Forge.

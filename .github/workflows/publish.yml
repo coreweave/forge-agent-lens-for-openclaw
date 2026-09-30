@@ -86,8 +86,9 @@ jobs:
           RELEASE_REF: ${{ github.event.inputs.release_ref }}
         run: |
           set -euo pipefail
+          PACKAGE_NAME="$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).name")"
           PACKAGE_VERSION="${RELEASE_REF#v}"
-          if npm view "forge-agent-lens-for-openclaw@${PACKAGE_VERSION}" version --registry=https://registry.npmjs.org >/dev/null 2>&1; then
+          if npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version --registry=https://registry.npmjs.org >/dev/null 2>&1; then
             echo "::error::Version ${PACKAGE_VERSION} is already published to npm"
             exit 1
           fi
@@ -110,14 +111,8 @@ jobs:
       - name: Build package
         run: pnpm build
 
-      # package.json carries the scoped name
-      # (@coreweave/forge-agent-lens-for-openclaw) so ClawHub publishing works,
-      # where the scope must match the publish owner. npm uses the unscoped name,
-      # so rewrite it before publishing here.
-      - name: Publish to npm (unscoped name)
-        run: |
-          npm pkg set name=forge-agent-lens-for-openclaw
-          pnpm publish --no-git-checks --access public
+      - name: Publish to npm
+        run: pnpm publish --no-git-checks --access public
 
   publish-clawhub:
     needs:

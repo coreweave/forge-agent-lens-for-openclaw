@@ -24,7 +24,7 @@ describe("Forge plugin entry", () => {
     expect(manifest.id).toBe(entry.id);
     expect(pkg.name).toBe("@coreweave/forge-agent-lens-for-openclaw");
     expect(pkg.openclaw.install.clawhubSpec).toBe(`clawhub:${pkg.name}`);
-    expect(pkg.openclaw.install.npmSpec).toBe("forge-agent-lens-for-openclaw");
+    expect(pkg.openclaw.install.npmSpec).toBe(pkg.name);
     expect(registerService.mock.calls[0]?.[0].id).toBe("forge");
     const command = registerCommand.mock.calls[0]?.[0];
     expect(command.name).toBe("forge");

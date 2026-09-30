@@ -41,7 +41,7 @@
     },
     "install": {
       "clawhubSpec": "clawhub:@coreweave/forge-agent-lens-for-openclaw",
-      "npmSpec": "forge-agent-lens-for-openclaw",
+      "npmSpec": "@coreweave/forge-agent-lens-for-openclaw",
       "defaultChoice": "clawhub"
     },
     "release": {
