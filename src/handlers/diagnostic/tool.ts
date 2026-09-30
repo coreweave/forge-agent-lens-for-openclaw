@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-PackageName: forge-openclaw
+// SPDX-PackageName: forge-agent-lens-for-openclaw
 
 import { runIsolated } from "@coreweave/forge-sdk/agentlens/tracing";
 import type { DiagnosticEventPayload } from "openclaw/plugin-sdk/diagnostic-runtime";
@@ -64,13 +64,13 @@ export function createToolDiagnosticHandlers(deps: HandlerDeps) {
       if (!turn) return;
       const attrs: Record<string, string | number | boolean> = {
         "gen_ai.tool.name": event.toolName,
-        "weave.loop.level": event.level,
-        "weave.loop.action": event.action,
-        "weave.loop.message": event.message,
-        "weave.loop.detector": event.detector,
+        "forge.loop.level": event.level,
+        "forge.loop.action": event.action,
+        "forge.loop.message": event.message,
+        "forge.loop.detector": event.detector,
       };
       if (Number.isFinite(event.count) && event.count >= 0) {
-        attrs["weave.loop.count"] = Math.trunc(event.count);
+        attrs["forge.loop.count"] = Math.trunc(event.count);
       }
       turn.addEvent("tool.loop", attrs);
     },
@@ -93,15 +93,13 @@ export function finalizeTool(
   if (!pending && !opts.force) return; // no terminal status yet
   const captured = lookupToolCall(deps.hookState, toolCallId).result;
   if (!opts.force && captured === undefined) return; // after_tool_call not in yet
-  if (deps.getResolved()?.captureContent) {
-    const result = safeJson(captured?.result);
-    if (result !== undefined) tool.result = result;
-  }
-  tool.end(
-    pending?.status === "error"
-      ? { error: new Error(pending.errorType ?? "tool.execution.error") }
-      : undefined,
-  );
+  tool.end({
+    result: deps.getResolved()?.captureContent ? safeJson(captured?.result) : undefined,
+    error:
+      pending?.status === "error"
+        ? new Error(pending.errorType ?? "tool.execution.error")
+        : undefined,
+  });
   clearToolCall(deps, toolCallId);
 }
 

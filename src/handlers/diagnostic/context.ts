@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-PackageName: forge-openclaw
+// SPDX-PackageName: forge-agent-lens-for-openclaw
 
 import type { DiagnosticEventPayload } from "openclaw/plugin-sdk/diagnostic-runtime";
 import type { HandlerDeps } from "../deps.js";
@@ -14,14 +14,14 @@ export function createContextDiagnosticHandlers(deps: HandlerDeps) {
     onContextAssembled(event: ContextAssembledEvent): void {
       const turn = deps.registries.turns.get(event.runId);
       if (!turn) return;
-      setIfInt(turn, "weave.context.message_count", event.messageCount);
-      setIfInt(turn, "weave.context.history_text_chars", event.historyTextChars);
-      setIfInt(turn, "weave.context.history_image_blocks", event.historyImageBlocks);
-      setIfInt(turn, "weave.context.system_prompt_chars", event.systemPromptChars);
-      setIfInt(turn, "weave.context.prompt_chars", event.promptChars);
-      setIfInt(turn, "weave.context.prompt_images", event.promptImages);
-      setIfInt(turn, "weave.context.budget_tokens", event.contextTokenBudget);
-      setIfInt(turn, "weave.context.reserve_tokens", event.reserveTokens);
+      setIfInt(turn, "forge.context.message_count", event.messageCount);
+      setIfInt(turn, "forge.context.history_text_chars", event.historyTextChars);
+      setIfInt(turn, "forge.context.history_image_blocks", event.historyImageBlocks);
+      setIfInt(turn, "forge.context.system_prompt_chars", event.systemPromptChars);
+      setIfInt(turn, "forge.context.prompt_chars", event.promptChars);
+      setIfInt(turn, "forge.context.prompt_images", event.promptImages);
+      setIfInt(turn, "forge.context.budget_tokens", event.contextTokenBudget);
+      setIfInt(turn, "forge.context.reserve_tokens", event.reserveTokens);
     },
   };
 }

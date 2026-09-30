@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-PackageName: forge-openclaw
+// SPDX-PackageName: forge-agent-lens-for-openclaw
 
 import { BoundedMap } from "../util/bounded-map.js";
 import type { LlmUsage } from "../handlers/hook-types.js";

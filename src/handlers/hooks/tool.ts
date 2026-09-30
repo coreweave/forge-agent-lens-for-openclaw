@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-PackageName: forge-openclaw
+// SPDX-PackageName: forge-agent-lens-for-openclaw
 
 import { captureToolEnd, captureToolStart } from "../../state/hook-state.js";
 import { finalizeTool } from "../diagnostic/tool.js";

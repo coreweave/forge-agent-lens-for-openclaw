@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-PackageName: forge-openclaw
+// SPDX-PackageName: forge-agent-lens-for-openclaw
 
 import { PACKAGE_NAME, PACKAGE_VERSION } from "../config/version.js";
 
@@ -9,7 +9,6 @@ import { PACKAGE_NAME, PACKAGE_VERSION } from "../config/version.js";
 // (the Conversation, or a rootless Turn); the SDK propagates it down the handle
 // chain to every child span.
 export const INTEGRATION_ATTRIBUTES: Record<string, string> = {
-  "weave.source": "forge-integration",
-  "weave.integration.name": PACKAGE_NAME,
-  "weave.integration.version": PACKAGE_VERSION,
+  "forge.integration.name": PACKAGE_NAME,
+  "forge.integration.version": PACKAGE_VERSION,
 };

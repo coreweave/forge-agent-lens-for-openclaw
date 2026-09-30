@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-PackageName: forge-openclaw
+// SPDX-PackageName: forge-agent-lens-for-openclaw
 
 // Integration identity must land on EVERY span, not just the invoke_agent root,
 // so the backend can group/filter chat/tool spans by integration too. Set once at
@@ -11,6 +11,7 @@ import { describe, it, expect, vi, assert } from "vitest";
 import {
   bootPlugin,
   pinInMemoryExporter,
+  TRACE,
   runStarted,
   runCompleted,
   modelCallStarted,
@@ -23,7 +24,7 @@ import { PACKAGE_NAME, PACKAGE_VERSION } from "./config/version.js";
 const exporter = pinInMemoryExporter();
 
 describe("integration attribution", () => {
-  it("propagates weave.integration.* to every span under a session (turn, chat, tool)", async () => {
+  it("propagates forge.integration.* to every span under a session (turn, chat, tool)", async () => {
     const { dispatch, finish } = await bootPlugin({ agentName: "test-agent" });
 
     dispatch.hook("session_start", { sessionKey: "s-1" });
@@ -45,11 +46,10 @@ describe("integration attribution", () => {
     assert(tool);
 
     for (const span of [turn, chat, tool]) {
-      expect(span.attributes["weave.source"]).toBe("forge-integration");
       expect(span.resource.attributes["wandb.sdk.name"]).toBe("forge");
       expect(span.resource.attributes["service.name"]).toBe("openclaw-agent");
-      expect(span.attributes["weave.integration.name"]).toBe(PACKAGE_NAME);
-      expect(span.attributes["weave.integration.version"]).toBe(PACKAGE_VERSION);
+      expect(span.attributes["forge.integration.name"]).toBe(PACKAGE_NAME);
+      expect(span.attributes["forge.integration.version"]).toBe(PACKAGE_VERSION);
     }
   });
 
@@ -76,11 +76,78 @@ describe("integration attribution", () => {
     assert(tool);
 
     for (const span of [turn, chat, tool]) {
-      expect(span.attributes["weave.source"]).toBe("forge-integration");
       expect(span.resource.attributes["wandb.sdk.name"]).toBe("forge");
       expect(span.resource.attributes["service.name"]).toBe("openclaw-agent");
-      expect(span.attributes["weave.integration.name"]).toBe(PACKAGE_NAME);
-      expect(span.attributes["weave.integration.version"]).toBe(PACKAGE_VERSION);
+      expect(span.attributes["forge.integration.name"]).toBe(PACKAGE_NAME);
+      expect(span.attributes["forge.integration.version"]).toBe(PACKAGE_VERSION);
     }
+  });
+
+  it("emits only forge.* custom keys; weave.compaction.* is the one backend-read survivor", async () => {
+    const { dispatch, finish } = await bootPlugin({ agentName: "test-agent", agentDescription: "demo" });
+
+    // Drive every emitter once so a missed rename surfaces as a weave.* key.
+    dispatch.hook("session_start", { sessionKey: "s-1" });
+    runStarted(dispatch, { runId: "r-1", sessionKey: "s-1" });
+    dispatch.diagnostic({ type: "context.assembled", ts: 1001, runId: "r-1", contextTokenBudget: 1000, messageCount: 2, trace: TRACE });
+    dispatch.diagnostic({ type: "run.attempt", ts: 1002, runId: "r-1", attempt: 2, trace: TRACE });
+    dispatch.hook("message_received", { runId: "r-1", from: "user", content: "hi" }, { channelId: "telegram" });
+    modelCallStarted(dispatch, { runId: "r-1", callId: "c-1", spanId: "csp" });
+    toolStarted(dispatch, { runId: "r-1", toolCallId: "tc-1", spanId: "tcsp", parentSpanId: "csp" });
+    toolCompleted(dispatch, { runId: "r-1", toolCallId: "tc-1", spanId: "tcsp" });
+    modelCallCompleted(dispatch, { runId: "r-1", callId: "c-1", spanId: "csp" });
+    dispatch.diagnostic({ type: "tool.loop", ts: 1003, sessionKey: "s-1", toolName: "search", level: "warning", action: "warn", detector: "generic_repeat", count: 3, message: "loop" });
+    dispatch.diagnostic({ type: "model.usage", ts: 1004, runId: "r-1", costUsd: 0.01, usage: { input: 1, output: 1 }, context: { limit: 1000, used: 10 }, trace: TRACE });
+    dispatch.hook("before_compaction", { messageCount: 5 }, { runId: "r-1" });
+    dispatch.hook("after_compaction", { messageCount: 2 }, { runId: "r-1" });
+    dispatch.hook("subagent_spawned", { runId: "sub-1", agentId: "researcher", label: "search", childSessionKey: "sub-s", mode: "run" }, { runId: "r-1" });
+    dispatch.hook("subagent_ended", { runId: "sub-1", outcome: "ok" });
+    dispatch.hook("agent_end", { runId: "r-1", success: true, durationMs: 10 });
+    runCompleted(dispatch, { runId: "r-1", sessionKey: "s-1" });
+    dispatch.hook("session_end", { sessionKey: "s-1" });
+    await finish();
+
+    const spans = exporter.getFinishedSpans();
+    const keys = new Set<string>();
+    for (const span of spans) {
+      for (const key of Object.keys(span.attributes)) keys.add(key);
+      for (const event of span.events) for (const key of Object.keys(event.attributes ?? {})) keys.add(key);
+    }
+    expect([...keys].filter(k => k.startsWith("weave.")).sort()).toEqual([
+      "weave.compaction.items_after",
+      "weave.compaction.items_before",
+    ]);
+    expect([...keys].filter(k => k.startsWith("forge.")).sort()).toMatchInlineSnapshot(`
+      [
+        "forge.agent.duration_ms",
+        "forge.agent.success",
+        "forge.context.budget_tokens",
+        "forge.context.message_count",
+        "forge.context.used_tokens",
+        "forge.cost.usd",
+        "forge.integration.name",
+        "forge.integration.version",
+        "forge.loop.action",
+        "forge.loop.count",
+        "forge.loop.detector",
+        "forge.loop.level",
+        "forge.loop.message",
+        "forge.message.channel",
+        "forge.message.content",
+        "forge.message.from",
+        "forge.outcome",
+        "forge.run.attempt",
+        "forge.subagent.mode",
+      ]
+    `);
+
+    // Agent identity moved to the SDK's gen_ai.agent.* fields.
+    const turn = spans.find(s => s.attributes["gen_ai.operation.name"] === "invoke_agent" && s.attributes["gen_ai.agent.name"] === "test-agent");
+    assert(turn);
+    expect(turn.attributes["gen_ai.agent.version"]).toBe(PACKAGE_VERSION);
+    expect(turn.attributes["gen_ai.agent.description"]).toBe("demo");
+    const spawned = turn.events.find(e => e.name === "subagent_spawned");
+    assert(spawned);
+    expect(spawned.attributes).toMatchObject({ "gen_ai.agent.id": "researcher", "gen_ai.agent.description": "search" });
   });
 });

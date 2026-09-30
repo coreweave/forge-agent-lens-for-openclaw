@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-PackageName: forge-openclaw
+// SPDX-PackageName: forge-agent-lens-for-openclaw
 
 import { describe, it, expect, vi, assert } from "vitest";
 import {
@@ -47,8 +47,10 @@ describe("end-to-end smoke", () => {
     assert(tool);
 
     expect(chat.attributes).toMatchInlineSnapshot(
-      { "weave.integration.version": expect.any(String) }, `
+      { "forge.integration.version": expect.any(String) }, `
       {
+        "forge.integration.name": "forge-agent-lens-for-openclaw",
+        "forge.integration.version": Any<String>,
         "gen_ai.conversation.id": "s-1",
         "gen_ai.input.messages": "[{"role":"user","content":"hi"}]",
         "gen_ai.operation.name": "chat",
@@ -57,43 +59,38 @@ describe("end-to-end smoke", () => {
         "gen_ai.system_instructions": "[{"type":"text","content":"be helpful"}]",
         "gen_ai.usage.input_tokens": 5,
         "gen_ai.usage.output_tokens": 3,
-        "weave.integration.name": "forge-openclaw",
-        "weave.integration.version": Any<String>,
-        "weave.source": "forge-integration",
       }
     `);
     expect(tool.attributes).toMatchInlineSnapshot(
-      { "weave.integration.version": expect.any(String) }, `
+      { "forge.integration.version": expect.any(String) }, `
       {
+        "forge.integration.name": "forge-agent-lens-for-openclaw",
+        "forge.integration.version": Any<String>,
         "gen_ai.conversation.id": "s-1",
         "gen_ai.operation.name": "execute_tool",
         "gen_ai.tool.call.arguments": "{"q":"weave"}",
         "gen_ai.tool.call.id": "tc-1",
         "gen_ai.tool.call.result": "{"hits":7}",
         "gen_ai.tool.name": "search",
-        "weave.integration.name": "forge-openclaw",
-        "weave.integration.version": Any<String>,
-        "weave.source": "forge-integration",
       }
     `);
-    // weave.agent.version is the package version (asserted by value in
+    // gen_ai.agent.version is the package version (asserted by value in
     // plugin.test.ts); here just confirm it's stamped, so a version bump never
     // churns this end-to-end snapshot.
-    expect(turn.attributes).toHaveProperty("weave.agent.version");
+    expect(turn.attributes).toHaveProperty("gen_ai.agent.version");
     const turnAttrs: Record<string, unknown> = { ...turn.attributes };
-    delete turnAttrs["weave.agent.version"];
+    delete turnAttrs["gen_ai.agent.version"];
     expect(turnAttrs).toMatchInlineSnapshot(
-      { "weave.integration.version": expect.any(String) }, `
+      { "forge.integration.version": expect.any(String) }, `
       {
+        "forge.cost.usd": 0.0001,
+        "forge.integration.name": "forge-agent-lens-for-openclaw",
+        "forge.integration.version": Any<String>,
+        "forge.outcome": "completed",
         "gen_ai.agent.name": "test-agent",
         "gen_ai.conversation.id": "s-1",
         "gen_ai.operation.name": "invoke_agent",
         "gen_ai.system_instructions": "[{"type":"text","content":"be helpful"}]",
-        "weave.cost.usd": 0.0001,
-        "weave.integration.name": "forge-openclaw",
-        "weave.integration.version": Any<String>,
-        "weave.outcome": "completed",
-        "weave.source": "forge-integration",
       }
     `);
   });
@@ -125,21 +122,22 @@ describe("end-to-end smoke", () => {
     const chats = exporter.getFinishedSpans().filter(s => s.attributes["gen_ai.operation.name"] === "chat");
     expect(chats.map(s => ({
       ...s.attributes,
-      "weave.integration.version": "<version>",
+      "forge.integration.version": "<version>",
     }))).toMatchInlineSnapshot(`
       [
         {
+          "forge.integration.name": "forge-agent-lens-for-openclaw",
+          "forge.integration.version": "<version>",
           "gen_ai.conversation.id": "s-2",
           "gen_ai.input.messages": "[{"role":"user","content":"find tennis stats"}]",
           "gen_ai.operation.name": "chat",
           "gen_ai.output.messages": "[{"role":"assistant","content":"I'll search"}]",
           "gen_ai.request.model": "gpt-4o",
           "gen_ai.system_instructions": "[{"type":"text","content":"be brief"}]",
-          "weave.integration.name": "forge-openclaw",
-          "weave.integration.version": "<version>",
-          "weave.source": "forge-integration",
         },
         {
+          "forge.integration.name": "forge-agent-lens-for-openclaw",
+          "forge.integration.version": "<version>",
           "gen_ai.conversation.id": "s-2",
           "gen_ai.operation.name": "chat",
           "gen_ai.output.messages": "[{"role":"assistant","content":"Found 3 results"}]",
@@ -147,9 +145,6 @@ describe("end-to-end smoke", () => {
           "gen_ai.system_instructions": "[{"type":"text","content":"be brief"}]",
           "gen_ai.usage.input_tokens": 12,
           "gen_ai.usage.output_tokens": 8,
-          "weave.integration.name": "forge-openclaw",
-          "weave.integration.version": "<version>",
-          "weave.source": "forge-integration",
         },
       ]
     `);

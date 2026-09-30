@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-PackageName: forge-openclaw
+// SPDX-PackageName: forge-agent-lens-for-openclaw
 
 // Per-hook event/ctx types recovered from OpenClawPluginApi["on"] via a TS
 // instantiation expression (avoids deep-importing the internal handler map).

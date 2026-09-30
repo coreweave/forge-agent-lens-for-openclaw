@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-PackageName: forge-openclaw
+// SPDX-PackageName: forge-agent-lens-for-openclaw
 
 import type { DiagnosticEventPayload } from "openclaw/plugin-sdk/diagnostic-runtime";
 import type { HandlerDeps } from "../deps.js";
@@ -20,7 +20,7 @@ export function createUsageDiagnosticHandlers(deps: HandlerDeps) {
       if (typeof event.costUsd === "number" && Number.isFinite(event.costUsd)) {
         const total = (deps.costByRun.get(runId) ?? 0) + event.costUsd;
         deps.costByRun.set(runId, total);
-        turn.setAttributes({ "weave.cost.usd": total });
+        turn.setAttributes({ "forge.cost.usd": total });
       }
       // usage is typed required but the runtime sometimes emits cost-only; guard.
       // Attribute names follow the OTel GenAI semconv as exposed by the Forge SDK
@@ -39,8 +39,8 @@ export function createUsageDiagnosticHandlers(deps: HandlerDeps) {
       }
       const context = event.context;
       if (context) {
-        setIfInt(turn, "weave.context.budget_tokens", context.limit);
-        setIfInt(turn, "weave.context.used_tokens", context.used);
+        setIfInt(turn, "forge.context.budget_tokens", context.limit);
+        setIfInt(turn, "forge.context.used_tokens", context.used);
       }
     },
   };

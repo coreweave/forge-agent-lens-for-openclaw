@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-PackageName: forge-openclaw
+// SPDX-PackageName: forge-agent-lens-for-openclaw
 
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 import { onInternalDiagnosticEvent } from "openclaw/plugin-sdk/diagnostic-runtime";
@@ -9,8 +9,8 @@ import { createForgePlugin, renderStatus, type ForgePlugin } from "./src/plugin.
 
 // register(api) can run multiple times (setup/runtime, hot-reload); cache the
 // instance + subscription on globalThis so a re-import doesn't make a stale duplicate.
-const PLUGIN_GLOBAL_KEY = Symbol.for("forge-openclaw.plugin");
-const DIAGNOSTIC_SUBSCRIBED_KEY = Symbol.for("forge-openclaw.diagnosticSubscribed");
+const PLUGIN_GLOBAL_KEY = Symbol.for("forge-agent-lens-for-openclaw.plugin");
+const DIAGNOSTIC_SUBSCRIBED_KEY = Symbol.for("forge-agent-lens-for-openclaw.diagnosticSubscribed");
 
 function getOrCreateSharedPlugin(pluginConfig: unknown): ForgePlugin {
   const g = globalThis as Record<PropertyKey, unknown>;

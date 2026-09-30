@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 CoreWeave, Inc.
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-PackageName: forge-openclaw
+// SPDX-PackageName: forge-agent-lens-for-openclaw
 
 import { runIsolated } from "@coreweave/forge-sdk/agentlens/tracing";
 import type { HandlerDeps } from "../deps.js";
@@ -22,10 +22,10 @@ export function createSubagentHookHandlers(deps: HandlerDeps): {
       if (deps.registries.subagents.has(event.runId)) return;
       const sub = runIsolated(() => turn.startSubagent({ name: event.agentId }));
       const evAttrs: Record<string, string | number | boolean> = {
-        "weave.agent.id": event.agentId,
-        "weave.subagent.mode": event.mode,
+        "gen_ai.agent.id": event.agentId,
+        "forge.subagent.mode": event.mode,
       };
-      if (event.label) evAttrs["weave.agent.description"] = event.label;
+      if (event.label) evAttrs["gen_ai.agent.description"] = event.label;
       if (event.childSessionKey) evAttrs["gen_ai.conversation.id"] = event.childSessionKey;
       turn.addEvent("subagent_spawned", evAttrs);
       deps.registries.subagents.set(event.runId, sub);
