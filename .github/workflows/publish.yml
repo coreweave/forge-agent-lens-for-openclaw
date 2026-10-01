@@ -80,6 +80,7 @@ jobs:
         with:
           ref: ${{ github.event.inputs.release_ref }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Check version not already on npm
         env:
