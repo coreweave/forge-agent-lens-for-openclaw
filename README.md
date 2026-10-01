@@ -186,6 +186,11 @@ openclaw gateway restart
 openclaw plugins inspect forge --runtime --json
 ```
 
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md). Contributions require agreeing to the
+[CoreWeave CLA](./CLA.md).
+
 ## License
 
 [Apache License 2.0](./LICENSE)
