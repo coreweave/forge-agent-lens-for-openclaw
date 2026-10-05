@@ -1,42 +1,33 @@
 name: Publish Package
 
+# Dispatch from the release tag (`gh workflow run publish.yml --ref vX.Y.Z`):
+# ClawHub trusted publishing requires the OIDC ref and SHA to match the release.
 on:
   workflow_dispatch:
-    inputs:
-      release_ref:
-        description: Git ref to publish, for example v0.0.1
-        required: true
-        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: publish-${{ github.event.inputs.release_ref }}
+  group: publish-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   # Shared version gate for both registries; npm-only checks live in publish-npm.
   verify:
     runs-on: ubuntu-latest
-    outputs:
-      release_commit: ${{ steps.release.outputs.release_commit }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
         with:
-          ref: ${{ github.event.inputs.release_ref }}
-          fetch-depth: 0
+          persist-credentials: false
 
       - name: Verify release tag and version
-        id: release
-        env:
-          RELEASE_REF: ${{ github.event.inputs.release_ref }}
         run: |
           set -euo pipefail
 
-          if ! git rev-parse -q --verify "refs/tags/${RELEASE_REF}" >/dev/null; then
-            echo "::error::release_ref must be an existing tag, got '${RELEASE_REF}'"
+          if [ "${GITHUB_REF_TYPE}" != "tag" ]; then
+            echo "::error::Run this workflow from a release tag, not ${GITHUB_REF_TYPE} '${GITHUB_REF_NAME}'"
             exit 1
           fi
 
@@ -44,8 +35,8 @@ jobs:
           PLUGIN_VERSION="$(node -p "JSON.parse(require('fs').readFileSync('openclaw.plugin.json', 'utf8')).version")"
           SERVICE_VERSION="$(node -p "(require('fs').readFileSync('src/config/version.ts','utf8').match(/PACKAGE_VERSION\\s*=\\s*\"([^\"]+)\"/)||[])[1] || ''")"
 
-          if [ "${RELEASE_REF}" != "v${PACKAGE_VERSION}" ]; then
-            echo "::error::Tag ${RELEASE_REF} does not match package.json version v${PACKAGE_VERSION}"
+          if [ "${GITHUB_REF_NAME}" != "v${PACKAGE_VERSION}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match package.json version v${PACKAGE_VERSION}"
             exit 1
           fi
 
@@ -59,36 +50,30 @@ jobs:
             exit 1
           fi
 
-          RELEASE_COMMIT="$(git rev-list -n 1 "${RELEASE_REF}")"
-          echo "release_commit=${RELEASE_COMMIT}" >> "$GITHUB_OUTPUT"
-
   build-clawpack:
     needs: verify
     uses: ./.github/workflows/build-clawpack.yml
     with:
-      ref: ${{ github.event.inputs.release_ref }}
+      ref: ${{ github.sha }}
 
   publish-npm:
     needs: verify
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
+      id-token: write  # npm trusted publishing
     steps:
       - name: Checkout repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
         with:
-          ref: ${{ github.event.inputs.release_ref }}
           fetch-depth: 0
           persist-credentials: false
 
       - name: Check version not already on npm
-        env:
-          RELEASE_REF: ${{ github.event.inputs.release_ref }}
         run: |
           set -euo pipefail
           PACKAGE_NAME="$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).name")"
-          PACKAGE_VERSION="${RELEASE_REF#v}"
+          PACKAGE_VERSION="${GITHUB_REF_NAME#v}"
           if npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version --registry=https://registry.npmjs.org >/dev/null 2>&1; then
             echo "::error::Version ${PACKAGE_VERSION} is already published to npm"
             exit 1
@@ -125,7 +110,7 @@ jobs:
     timeout-minutes: 45
     permissions:
       contents: read
-      id-token: write  # ClawHub trusted publishing, once CLAWHUB_TOKEN is removed
+      id-token: write  # ClawHub trusted publishing
     steps:
       - name: Download ClawPack
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8
@@ -166,24 +151,11 @@ jobs:
           if-no-files-found: ignore
 
       - name: Publish to ClawHub
-        env:
-          # Optional: only for the first publish, before OIDC trusted publishing is set up.
-          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
-          RELEASE_REF: ${{ github.event.inputs.release_ref }}
-          RELEASE_COMMIT: ${{ needs.verify.outputs.release_commit }}
         run: |
-          set -euo pipefail
-          args=(
-            --owner coreweave
-            --source-repo "$GITHUB_REPOSITORY"
-            --source-commit "$RELEASE_COMMIT"
-            --source-ref "refs/tags/$RELEASE_REF"
-            --wait
+          bun clawhub-source/packages/clawhub/src/cli.ts package publish "$RUNNER_TEMP"/clawpack/*.tgz \
+            --owner coreweave \
+            --source-repo "$GITHUB_REPOSITORY" \
+            --source-commit "$GITHUB_SHA" \
+            --source-ref "$GITHUB_REF" \
+            --wait \
             --json
-          )
-          if [ -n "$CLAWHUB_TOKEN" ]; then
-            export CLAWHUB_CONFIG_PATH="$RUNNER_TEMP/clawhub-config.json"
-            (umask 077 && jq -n '{registry: "https://clawhub.ai", token: env.CLAWHUB_TOKEN}' > "$CLAWHUB_CONFIG_PATH")
-            args+=(--manual-override-reason "GitHub Actions $GITHUB_EVENT_NAME publish via CLAWHUB_TOKEN")
-          fi
-          bun clawhub-source/packages/clawhub/src/cli.ts package publish "$RUNNER_TEMP"/clawpack/*.tgz "${args[@]}"
