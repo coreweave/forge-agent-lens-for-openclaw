@@ -9,7 +9,10 @@
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
-    "required": ["entity", "project"],
+    "required": [
+      "entity",
+      "project"
+    ],
     "properties": {
       "enabled": {
         "type": "boolean",
@@ -28,15 +31,34 @@
       "apiKey": {
         "description": "W&B API key. String literal (discouraged), or a { source, provider, id } SecretRef resolved through OpenClaw's secret providers (env works out of the box; file/exec require a configured provider). Omit to let the plugin resolve credentials from WANDB_API_KEY or netrc.",
         "oneOf": [
-          { "type": "string" },
+          {
+            "type": "string"
+          },
           {
             "type": "object",
             "additionalProperties": false,
-            "required": ["source", "provider", "id"],
+            "required": [
+              "source",
+              "provider",
+              "id"
+            ],
             "properties": {
-              "source": { "type": "string", "enum": ["env", "file", "exec"] },
-              "provider": { "type": "string", "minLength": 1 },
-              "id": { "type": "string", "minLength": 1 }
+              "source": {
+                "type": "string",
+                "enum": [
+                  "env",
+                  "file",
+                  "exec"
+                ]
+              },
+              "provider": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              }
             }
           }
         ]
@@ -71,9 +93,15 @@
     }
   },
   "uiHints": {
-    "enabled": { "label": "Enable Forge export" },
-    "entity": { "label": "W&B Entity (team/user)" },
-    "project": { "label": "W&B Project" },
+    "enabled": {
+      "label": "Enable Forge export"
+    },
+    "entity": {
+      "label": "W&B Entity (team/user)"
+    },
+    "project": {
+      "label": "W&B Project"
+    },
     "captureContent": {
       "label": "Capture conversation content",
       "help": "On by default; empty traces aren't useful. Set to false when compliance or retention policy requires it. Content is not redacted by the plugin; scrub upstream if needed."

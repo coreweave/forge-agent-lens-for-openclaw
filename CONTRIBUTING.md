@@ -31,6 +31,13 @@ Use a Conventional Commit title. Call out privacy or compatibility changes in
 the pull request description, and update the README when user-visible behavior
 changes. Do not commit generated build artifacts or local configuration.
 
+## Releases
+
+release-please keeps a release PR open that bumps the version and changelog
+from the Conventional Commits on `main`. Merging it tags `vX.Y.Z`, creates the
+GitHub release, and publishes to npm and ClawHub. To choose the version, add a
+`Release-As: X.Y.Z` footer to a commit.
+
 ## Contributor License Agreement
 
 Contributors must agree to the [CoreWeave CLA](./CLA.md) when pushing code to this project.
