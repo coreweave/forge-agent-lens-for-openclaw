@@ -14,34 +14,11 @@ costs in CoreWeave Forge.
 > results are sent unredacted to W&B. Set it to `false` to record only trace
 > structure, tokens, and costs.
 
-## Tracing SDK
-
-Tracing uses `@coreweave/forge-sdk/agentlens/tracing`, pinned to the
-`0.1.0-beta.0` prerelease. Every turn, chat, tool, and subagent span carries
-`forge.integration.name = forge-agent-lens-for-openclaw` and
-`forge.integration.version`, and the OTLP resource reports
-`wandb.sdk.name = forge`.
-
 ## Requirements
 
 - Node.js >= 22.14.0
 - OpenClaw >= 2026.4.25
 - A [W&B account](https://wandb.ai) and project
-
-## Migrating from `weave-openclaw`
-
-The plugin ID is now `forge` and the status command is `/forge status`, with no
-`weave` aliases. Disable and uninstall the `weave` plugin before installing this
-one; otherwise both plugins trace every session. Then move your settings from
-`plugins.entries.weave` to `plugins.entries.forge` and replace `weave` with
-`forge` in `plugins.allow`. Configuration fields, W&B credentials, `WANDB_*`
-environment variables, and the `/weave/agents` dashboard route are unchanged.
-
-Span attributes moved from `weave.*` to `forge.*`; for example, `weave.outcome`
-is now `forge.outcome`. The agent version, ID, and description moved from
-`weave.agent.*` to the standard `gen_ai.agent.*` attributes, and `weave.source`
-was removed. Only `weave.compaction.*` keeps its name, because the Weave backend
-reads it.
 
 ## Setup
 
@@ -61,7 +38,6 @@ Add the plugin to `~/.openclaw/openclaw.json`:
 
 ```js
 {
-  diagnostics: { enabled: true },
   plugins: {
     allow: ["forge"],
     entries: {
@@ -90,9 +66,6 @@ https://forge.coreweave.com/wandb/<entity>/<project>/weave/agents
 `hooks.allowConversationAccess: true` allows prompts, replies, and per-call
 token counts. Without it, trace structure, tool calls, and run totals still
 work. `diagnostics.enabled: false` disables tracing.
-
-See the [full setup guide](https://docs.coreweave.com/products/wandb/weave/guides/integrations/agents/openclaw-harness)
-and [ClawHub listing](https://clawhub.ai/coreweave/plugins/forge-agent-lens-for-openclaw).
 
 ## Configuration
 
@@ -165,17 +138,6 @@ openclaw plugins update forge
 openclaw plugins disable forge
 openclaw plugins enable forge
 openclaw plugins uninstall forge
-```
-
-## Development
-
-```bash
-npx pnpm@9 install --frozen-lockfile
-npx pnpm@9 check
-
-openclaw plugins install --link .
-openclaw gateway restart
-openclaw plugins inspect forge --runtime --json
 ```
 
 ## Contributing
