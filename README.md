@@ -25,8 +25,8 @@ and subagent span carries
 
 ## Requirements
 
-- Node.js >= 22.14.0
-- OpenClaw >= 2026.4.25
+- Node.js 24.16+ or 26.1+
+- OpenClaw >= 2026.9.8
 - A [W&B account](https://wandb.ai) and project
 
 ## Migration from weave-openclaw
