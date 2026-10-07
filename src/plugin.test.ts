@@ -32,6 +32,7 @@ describe("createForgePlugin lifecycle", () => {
   });
 
   it("starts running and exposes a config snapshot, then stops", async () => {
+    vi.stubEnv("WANDB_BASE_URL", "");
     const { createForgePlugin } = await import("./plugin.js");
     const plugin = createForgePlugin({
       pluginConfig: { entity: "my-team", project: "my-project", apiKey: "k", serviceName: "openclaw-agent" },
@@ -44,6 +45,7 @@ describe("createForgePlugin lifecycle", () => {
     expect(status.config.projectId).toBe("my-team/my-project");
     expect(status.config.serviceName).toBe("openclaw-agent");
     expect(status.config.authSource).toBe("literal");
+    expect(status.config.uiUrl).toBe("https://forge.coreweave.com/wandb/my-team/my-project/weave/agents");
     expect(status.counts).toEqual({ turns: 0, calls: 0, tools: 0, subagents: 0 });
 
     await plugin.service.stop({ logger: makeLogger() } as any);
@@ -67,7 +69,7 @@ describe("createForgePlugin lifecycle", () => {
       pluginConfig: {
         entity: "my-team",
         project: "my-project",
-        apiKey: { source: "file", id: "/tmp/weave-missing-key-" + Date.now(), provider: "x" },
+        apiKey: { source: "file", id: "/tmp/missing-api-key-" + Date.now(), provider: "x" },
       },
       hookState: createForgeHookState(),
     });
@@ -302,7 +304,7 @@ describe("usage: input_tokens is the total prompt", () => {
   // OTel gen_ai.usage.input_tokens must be the TOTAL prompt; providers report
   // `input` as uncached-only with cache_read / cache_creation a disjoint subset.
   // So input_tokens = input + cache_read + cache_creation, and cache_read stays a
-  // subset, keeping cache_read / input_tokens <= 100% downstream. (weave-claude-code#68)
+  // subset, keeping cache_read / input_tokens <= 100% downstream. (wandb/forge-claude-code#68)
   it("chat span sums cache tokens into input_tokens (cache fields stay the subset)", async () => {
     const { dispatch, finish } = await setupTurn({ captureContent: true });
     dispatch.hook("model_call_started", { runId: "r", callId: "c-1" });

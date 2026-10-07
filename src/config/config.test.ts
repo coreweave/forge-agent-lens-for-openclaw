@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-PackageName: forge-agent-lens-for-openclaw
 
+import { readFileSync } from "node:fs";
 import { describe, it, expect } from "vitest";
 import type { OpenClawConfig } from "openclaw/plugin-sdk/plugin-entry";
 import { resolveConfig } from "./config.js";
@@ -20,11 +21,11 @@ describe("resolveConfig", () => {
     expect(literal.authSource).toBe("literal");
 
     const env = await resolveConfig(
-      { ...base, apiKey: { source: "env", provider: "default", id: "WEAVE_TEST_KEY" } },
-      ctx({ WEAVE_TEST_KEY: "from-env" }),
+      { ...base, apiKey: { source: "env", provider: "default", id: "TEST_API_KEY" } },
+      ctx({ TEST_API_KEY: "from-env" }),
     );
     expect(env.apiKey).toBe("from-env");
-    expect(env.authSource).toBe("env:WEAVE_TEST_KEY");
+    expect(env.authSource).toBe("env:TEST_API_KEY");
 
     const unset = await resolveConfig(base, ctx());
     expect(unset.apiKey).toBeUndefined();
@@ -34,14 +35,14 @@ describe("resolveConfig", () => {
   it("throws when a configured apiKey SecretRef cannot be resolved", async () => {
     await expect(
       resolveConfig(
-        { ...base, apiKey: { source: "env", provider: "default", id: "WEAVE_UNSET_TEST_KEY" } },
+        { ...base, apiKey: { source: "env", provider: "default", id: "UNSET_TEST_API_KEY" } },
         ctx({}),
       ),
-    ).rejects.toThrow(/WEAVE_UNSET_TEST_KEY/);
+    ).rejects.toThrow(/UNSET_TEST_API_KEY/);
     // file source with no configured provider cannot resolve
     await expect(
       resolveConfig(
-        { ...base, apiKey: { source: "file", provider: "default", id: "/tmp/weave-missing" } },
+        { ...base, apiKey: { source: "file", provider: "default", id: "/tmp/missing-api-key" } },
         ctx(),
       ),
     ).rejects.toThrow();
@@ -69,5 +70,17 @@ describe("resolveConfig", () => {
     expect((await resolveConfig({ ...base, captureContent: false }, ctx())).captureContent).toBe(false);
 
     expect((await resolveConfig({ ...base, flushIntervalMs: 200 }, ctx())).flushIntervalMs).toBe(1000);
+  });
+
+  it("matches the manifest defaults, which OpenClaw applies before the plugin sees its config", async () => {
+    const manifest: { configSchema: { properties: Record<string, { default?: unknown }> } } = JSON.parse(
+      readFileSync(new URL("../../openclaw.plugin.json", import.meta.url), "utf8"),
+    );
+    const defaults = Object.fromEntries(
+      Object.entries(manifest.configSchema.properties)
+        .filter(([, schema]) => "default" in schema)
+        .map(([key, schema]) => [key, schema.default]),
+    );
+    expect(await resolveConfig(base, ctx())).toMatchObject(defaults);
   });
 });

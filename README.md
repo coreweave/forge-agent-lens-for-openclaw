@@ -14,35 +14,11 @@ costs in CoreWeave Forge.
 > results are sent unredacted to W&B. Set it to `false` to record only trace
 > structure, tokens, and costs.
 
-## Tracing SDK
-
-Tracing uses `@coreweave/forge-sdk/agentlens/tracing`, pinned to the
-`0.1.0-beta.0` prerelease. Every turn, chat, tool,
-and subagent span carries
-`forge.integration.name = forge-agent-lens-for-openclaw` and
-`forge.integration.version`. The OTLP resource reports
-`wandb.sdk.name = forge`. Plugin configuration and credential precedence are unchanged.
-
 ## Requirements
 
 - Node.js 24.16+ or 26.1+
 - OpenClaw >= 2026.9.8
 - A [W&B account](https://wandb.ai) and project
-
-## Migration from weave-openclaw
-
-The plugin ID and status command are now `forge` and `/forge status`.
-Disable and uninstall the old `weave` plugin before installing this package
-so both integrations do not export duplicate traces. Move the settings from
-`plugins.entries.weave` to `plugins.entries.forge`, and replace `weave` with
-`forge` in `plugins.allow`. Configuration fields and W&B credentials are unchanged.
-There is no legacy plugin-ID or command alias.
-
-Span attributes moved from `weave.*` to `forge.*`; for example, `weave.outcome`
-is now `forge.outcome`. Agent version, ID, and description use the
-`gen_ai.agent.*` semantic conventions, and `weave.source` was removed. Only
-`weave.compaction.*` keeps its name, because the Weave backend reads it. W&B API
-and environment names and the `/weave/agents` dashboard route are unchanged.
 
 ## Setup
 
@@ -52,7 +28,7 @@ Install the plugin:
 openclaw plugins install clawhub:@coreweave/forge-agent-lens-for-openclaw
 ```
 
-Export a [W&B API key](https://wandb.ai/authorize):
+Export a [W&B API key](https://forge.coreweave.com/wandb/authorize):
 
 ```bash
 export WANDB_API_KEY=<your-key>
@@ -62,7 +38,6 @@ Add the plugin to `~/.openclaw/openclaw.json`:
 
 ```js
 {
-  diagnostics: { enabled: true },
   plugins: {
     allow: ["forge"],
     entries: {
@@ -85,20 +60,16 @@ openclaw gateway restart
 Run `/forge status` in a chat. When it reports `running`, view traces at:
 
 ```text
-https://wandb.ai/<entity>/<project>/weave/agents
+https://forge.coreweave.com/wandb/<entity>/<project>/weave/agents
 ```
 
 `hooks.allowConversationAccess: true` allows prompts, replies, and per-call
 token counts. Without it, trace structure, tool calls, and run totals still
 work. `diagnostics.enabled: false` disables tracing.
 
-See the [full setup guide](https://docs.wandb.ai/weave/guides/integrations/agents/openclaw-harness)
-and [ClawHub listing](https://clawhub.ai/coreweave/plugins/forge-agent-lens-for-openclaw).
-
 ## Configuration
 
-Only `entity` and `project` are required. Everything else has a sensible
-default.
+Only `entity` and `project` are required.
 
 ```js
 {
@@ -110,10 +81,8 @@ default.
           entity: "your-team",        // your W&B team or username
           project: "your-project",    // your W&B project name
 
-          // Leave apiKey out to use the WANDB_API_KEY environment variable.
-          // File and exec SecretRefs also work with a configured OpenClaw
-          // secret provider.
-          // A plain key string works too, but keeping secrets out of config is safer:
+          // Optional; see the credential lookup order below. A SecretRef keeps
+          // the key out of this file. A plain string also works but is discouraged:
           //   apiKey: "your-wandb-api-key"
           apiKey: { source: "env", provider: "default", id: "WANDB_API_KEY" },
 
@@ -144,10 +113,9 @@ Environment refs work without extra setup. File and exec refs need a matching
 
 Credential lookup order:
 
-1. `apiKey` SecretRef
-2. Plain `apiKey`
-3. `WANDB_API_KEY`
-4. `~/.netrc`
+1. `apiKey` in the plugin config (SecretRef or plain string)
+2. `WANDB_API_KEY`
+3. `~/.netrc`
 
 OpenClaw also loads `WANDB_API_KEY` from `~/.openclaw/.env`. Set
 `WANDB_BASE_URL` for dedicated or self-hosted W&B.
@@ -170,17 +138,6 @@ openclaw plugins update forge
 openclaw plugins disable forge
 openclaw plugins enable forge
 openclaw plugins uninstall forge
-```
-
-## Development
-
-```bash
-npx pnpm@9 install --frozen-lockfile
-npx pnpm@9 check
-
-openclaw plugins install --link .
-openclaw gateway restart
-openclaw plugins inspect forge --runtime --json
 ```
 
 ## Contributing

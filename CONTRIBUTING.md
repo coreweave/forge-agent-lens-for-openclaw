@@ -15,6 +15,16 @@ Before opening a pull request, also run:
 uvx --from 'reuse[charset-normalizer]==6.2.0' reuse lint
 ```
 
+## Test a change in OpenClaw
+
+To run your checkout in a local OpenClaw gateway:
+
+```shell
+openclaw plugins install --link .
+openclaw gateway restart
+openclaw plugins inspect forge --runtime --json
+```
+
 ## Pull requests
 
 Use a Conventional Commit title. Call out privacy or compatibility changes in
