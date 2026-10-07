@@ -17,11 +17,10 @@ costs in CoreWeave Forge.
 ## Tracing SDK
 
 Tracing uses `@coreweave/forge-sdk/agentlens/tracing`, pinned to the
-`0.1.0-beta.0` prerelease. Every turn, chat, tool,
-and subagent span carries
+`0.1.0-beta.0` prerelease. Every turn, chat, tool, and subagent span carries
 `forge.integration.name = forge-agent-lens-for-openclaw` and
-`forge.integration.version`. The OTLP resource reports
-`wandb.sdk.name = forge`. Plugin configuration and credential precedence are unchanged.
+`forge.integration.version`, and the OTLP resource reports
+`wandb.sdk.name = forge`.
 
 ## Requirements
 
@@ -29,20 +28,20 @@ and subagent span carries
 - OpenClaw >= 2026.4.25
 - A [W&B account](https://wandb.ai) and project
 
-## Migration from weave-openclaw
+## Migrating from `weave-openclaw`
 
-The plugin ID and status command are now `forge` and `/forge status`.
-Disable and uninstall the old `weave` plugin before installing this package
-so both integrations do not export duplicate traces. Move the settings from
-`plugins.entries.weave` to `plugins.entries.forge`, and replace `weave` with
-`forge` in `plugins.allow`. Configuration fields and W&B credentials are unchanged.
-There is no legacy plugin-ID or command alias.
+The plugin ID is now `forge` and the status command is `/forge status`, with no
+`weave` aliases. Disable and uninstall the `weave` plugin before installing this
+one; otherwise both plugins trace every session. Then move your settings from
+`plugins.entries.weave` to `plugins.entries.forge` and replace `weave` with
+`forge` in `plugins.allow`. Configuration fields, W&B credentials, `WANDB_*`
+environment variables, and the `/weave/agents` dashboard route are unchanged.
 
 Span attributes moved from `weave.*` to `forge.*`; for example, `weave.outcome`
-is now `forge.outcome`. Agent version, ID, and description use the
-`gen_ai.agent.*` semantic conventions, and `weave.source` was removed. Only
-`weave.compaction.*` keeps its name, because the Weave backend reads it. W&B API
-and environment names and the `/weave/agents` dashboard route are unchanged.
+is now `forge.outcome`. The agent version, ID, and description moved from
+`weave.agent.*` to the standard `gen_ai.agent.*` attributes, and `weave.source`
+was removed. Only `weave.compaction.*` keeps its name, because the Weave backend
+reads it.
 
 ## Setup
 
@@ -97,8 +96,7 @@ and [ClawHub listing](https://clawhub.ai/coreweave/plugins/forge-agent-lens-for-
 
 ## Configuration
 
-Only `entity` and `project` are required. Everything else has a sensible
-default.
+Only `entity` and `project` are required.
 
 ```js
 {
@@ -110,10 +108,8 @@ default.
           entity: "your-team",        // your W&B team or username
           project: "your-project",    // your W&B project name
 
-          // Leave apiKey out to use the WANDB_API_KEY environment variable.
-          // File and exec SecretRefs also work with a configured OpenClaw
-          // secret provider.
-          // A plain key string works too, but keeping secrets out of config is safer:
+          // Optional; see the credential lookup order below. A SecretRef keeps
+          // the key out of this file. A plain string also works but is discouraged:
           //   apiKey: "your-wandb-api-key"
           apiKey: { source: "env", provider: "default", id: "WANDB_API_KEY" },
 
@@ -144,10 +140,9 @@ Environment refs work without extra setup. File and exec refs need a matching
 
 Credential lookup order:
 
-1. `apiKey` SecretRef
-2. Plain `apiKey`
-3. `WANDB_API_KEY`
-4. `~/.netrc`
+1. `apiKey` in the plugin config (SecretRef or plain string)
+2. `WANDB_API_KEY`
+3. `~/.netrc`
 
 OpenClaw also loads `WANDB_API_KEY` from `~/.openclaw/.env`. Set
 `WANDB_BASE_URL` for dedicated or self-hosted W&B.
