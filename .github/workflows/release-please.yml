@@ -20,6 +20,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write  # release commits, tags, and GitHub releases
+      issues: write  # create the labels it uses to track the release PR
       pull-requests: write  # the release PR
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
