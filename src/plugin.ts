@@ -30,7 +30,7 @@ import { createUsageDiagnosticHandlers } from "./handlers/diagnostic/usage.js";
 import { createContextDiagnosticHandlers } from "./handlers/diagnostic/context.js";
 
 const WANDB_CLOUD_API_BASE_URL = "https://api.wandb.ai";
-const WANDB_CLOUD_UI_BASE_URL = "https://wandb.ai";
+const WANDB_CLOUD_UI_BASE_URL = "https://forge.coreweave.com/wandb";
 
 type CreateForgePluginParams = {
   pluginConfig?: unknown;

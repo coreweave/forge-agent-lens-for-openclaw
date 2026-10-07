@@ -18,7 +18,7 @@ describe("formatStatus", () => {
         flushIntervalMs: 5000,
         captureContent: true,
         authSource: "env:WANDB_API_KEY",
-        uiUrl: "https://wandb.ai/my-team/openclaw-default/weave/agents",
+        uiUrl: "https://forge.coreweave.com/wandb/my-team/openclaw-default/weave/agents",
       },
       counts: { turns: 3, calls: 1, tools: 0, subagents: 0 },
     });
@@ -28,7 +28,7 @@ describe("formatStatus", () => {
              project=my-team/openclaw-default service=openclaw-agent agentVersion=0.0.1
              auth=env:WANDB_API_KEY flushIntervalMs=5000 captureContent=on
              active: turns=3 calls=1 tools=0 subagents=0
-             dashboard https://wandb.ai/my-team/openclaw-default/weave/agents"
+             dashboard https://forge.coreweave.com/wandb/my-team/openclaw-default/weave/agents"
     `);
   });
 
@@ -54,6 +54,6 @@ describe("formatStatus", () => {
       },
       counts: { turns: 0, calls: 0, tools: 0, subagents: 0 },
     });
-    expect(noUrl).not.toMatch(/wandb\.ai/);
+    expect(noUrl).not.toContain("dashboard");
   });
 });

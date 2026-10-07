@@ -52,7 +52,7 @@ Install the plugin:
 openclaw plugins install clawhub:@coreweave/forge-agent-lens-for-openclaw
 ```
 
-Export a [W&B API key](https://wandb.ai/authorize):
+Export a [W&B API key](https://forge.coreweave.com/wandb/authorize):
 
 ```bash
 export WANDB_API_KEY=<your-key>
@@ -85,14 +85,14 @@ openclaw gateway restart
 Run `/forge status` in a chat. When it reports `running`, view traces at:
 
 ```text
-https://wandb.ai/<entity>/<project>/weave/agents
+https://forge.coreweave.com/wandb/<entity>/<project>/weave/agents
 ```
 
 `hooks.allowConversationAccess: true` allows prompts, replies, and per-call
 token counts. Without it, trace structure, tool calls, and run totals still
 work. `diagnostics.enabled: false` disables tracing.
 
-See the [full setup guide](https://docs.wandb.ai/weave/guides/integrations/agents/openclaw-harness)
+See the [full setup guide](https://docs.coreweave.com/products/wandb/weave/guides/integrations/agents/openclaw-harness)
 and [ClawHub listing](https://clawhub.ai/coreweave/plugins/forge-agent-lens-for-openclaw).
 
 ## Configuration

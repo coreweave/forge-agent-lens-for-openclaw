@@ -32,6 +32,7 @@ describe("createForgePlugin lifecycle", () => {
   });
 
   it("starts running and exposes a config snapshot, then stops", async () => {
+    vi.stubEnv("WANDB_BASE_URL", "");
     const { createForgePlugin } = await import("./plugin.js");
     const plugin = createForgePlugin({
       pluginConfig: { entity: "my-team", project: "my-project", apiKey: "k", serviceName: "openclaw-agent" },
@@ -44,6 +45,7 @@ describe("createForgePlugin lifecycle", () => {
     expect(status.config.projectId).toBe("my-team/my-project");
     expect(status.config.serviceName).toBe("openclaw-agent");
     expect(status.config.authSource).toBe("literal");
+    expect(status.config.uiUrl).toBe("https://forge.coreweave.com/wandb/my-team/my-project/weave/agents");
     expect(status.counts).toEqual({ turns: 0, calls: 0, tools: 0, subagents: 0 });
 
     await plugin.service.stop({ logger: makeLogger() } as any);
