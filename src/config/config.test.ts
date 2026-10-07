@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-PackageName: forge-agent-lens-for-openclaw
 
+import { readFileSync } from "node:fs";
 import { describe, it, expect } from "vitest";
 import type { OpenClawConfig } from "openclaw/plugin-sdk/plugin-entry";
 import { resolveConfig } from "./config.js";
@@ -69,5 +70,17 @@ describe("resolveConfig", () => {
     expect((await resolveConfig({ ...base, captureContent: false }, ctx())).captureContent).toBe(false);
 
     expect((await resolveConfig({ ...base, flushIntervalMs: 200 }, ctx())).flushIntervalMs).toBe(1000);
+  });
+
+  it("matches the manifest defaults, which OpenClaw applies before the plugin sees its config", async () => {
+    const manifest: { configSchema: { properties: Record<string, { default?: unknown }> } } = JSON.parse(
+      readFileSync(new URL("../../openclaw.plugin.json", import.meta.url), "utf8"),
+    );
+    const defaults = Object.fromEntries(
+      Object.entries(manifest.configSchema.properties)
+        .filter(([, schema]) => "default" in schema)
+        .map(([key, schema]) => [key, schema.default]),
+    );
+    expect(await resolveConfig(base, ctx())).toMatchObject(defaults);
   });
 });
