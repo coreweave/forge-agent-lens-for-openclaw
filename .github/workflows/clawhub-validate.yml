@@ -67,7 +67,6 @@ jobs:
           SOURCE_REF: ${{ github.event.pull_request.head.ref || github.ref }}
         run: |
           bun clawhub-source/packages/clawhub/src/cli.ts package publish "$RUNNER_TEMP"/clawpack/*.tgz \
-            --owner coreweave \
             --source-repo "$GITHUB_REPOSITORY" \
             --source-commit "$SOURCE_COMMIT" \
             --source-ref "$SOURCE_REF" \
