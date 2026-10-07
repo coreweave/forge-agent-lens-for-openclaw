@@ -67,7 +67,7 @@ describe("createForgePlugin lifecycle", () => {
       pluginConfig: {
         entity: "my-team",
         project: "my-project",
-        apiKey: { source: "file", id: "/tmp/weave-missing-key-" + Date.now(), provider: "x" },
+        apiKey: { source: "file", id: "/tmp/missing-api-key-" + Date.now(), provider: "x" },
       },
       hookState: createForgeHookState(),
     });
@@ -302,7 +302,7 @@ describe("usage: input_tokens is the total prompt", () => {
   // OTel gen_ai.usage.input_tokens must be the TOTAL prompt; providers report
   // `input` as uncached-only with cache_read / cache_creation a disjoint subset.
   // So input_tokens = input + cache_read + cache_creation, and cache_read stays a
-  // subset, keeping cache_read / input_tokens <= 100% downstream. (weave-claude-code#68)
+  // subset, keeping cache_read / input_tokens <= 100% downstream. (wandb/forge-claude-code#68)
   it("chat span sums cache tokens into input_tokens (cache fields stay the subset)", async () => {
     const { dispatch, finish } = await setupTurn({ captureContent: true });
     dispatch.hook("model_call_started", { runId: "r", callId: "c-1" });
