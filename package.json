@@ -7,7 +7,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "engines": {
-    "node": ">=22.14.0"
+    "node": ">=24.16.0 <25 || >=26.1.0"
   },
   "repository": {
     "type": "git",
@@ -34,10 +34,10 @@
       "./dist/index.js"
     ],
     "compat": {
-      "pluginApi": ">=2026.4.25"
+      "pluginApi": ">=2026.9.8"
     },
     "build": {
-      "openclawVersion": "2026.4.25"
+      "openclawVersion": "2026.9.8"
     },
     "install": {
       "clawhubSpec": "clawhub:@coreweave/forge-agent-lens-for-openclaw",
@@ -55,8 +55,8 @@
   },
   "devDependencies": {
     "@opentelemetry/sdk-trace-base": "^2.11.0",
-    "@types/node": "^22.19.17",
-    "openclaw": ">=2026.8.34",
+    "@types/node": "^24.19.1",
+    "openclaw": ">=2026.9.8",
     "typescript": "^7.0.2",
     "vitest": "^5.0.3"
   },

@@ -2,7 +2,7 @@
 
 ## Local checks
 
-This repository uses pnpm 9 and Node.js 22.22.3 or newer.
+This repository uses pnpm 9 and Node.js 24.16+ or 26.1+.
 
 ```shell
 npx pnpm@9 install --frozen-lockfile
