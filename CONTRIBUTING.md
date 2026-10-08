@@ -34,9 +34,23 @@ changes. Do not commit generated build artifacts or local configuration.
 ## Releases
 
 release-please keeps a release PR open that bumps the version and changelog
-from the Conventional Commits on `main`. Merging it tags `vX.Y.Z`, creates the
-GitHub release, and publishes to npm and ClawHub. To choose the version, add a
-`Release-As: X.Y.Z` footer to a commit.
+from the Conventional Commits on `main`. The version changes in
+`package.json`, `openclaw.plugin.json`, and `src/config/version.ts`. Merging
+the PR tags `vX.Y.Z`, creates the GitHub release, and runs the Publish Package
+workflow (`publish.yml`) on the tag. That workflow publishes to npm and
+ClawHub through trusted publishing. Before 1.0, `feat` and `fix` both bump the
+patch version, and breaking changes bump the minor version. To choose the
+version, add a `Release-As: X.Y.Z` footer to a commit.
+
+If Publish Package fails on a transient error, rerun only the failed jobs:
+find the run ID with `gh run list --workflow publish.yml`, then run
+`gh run rerun <run-id> --failed`. Rerunning the npm job after it published
+fails, because npm already has that version. If Publish Package fails because
+of a bug, fix it in a pull request to `main` and release the next version.
+Reruns use the workflow files from the release tag, so they won't pick up the
+fix.
+
+Never reuse or move an existing release tag.
 
 ## Contributor License Agreement
 

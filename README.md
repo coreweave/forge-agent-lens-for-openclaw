@@ -140,6 +140,13 @@ openclaw plugins enable forge
 openclaw plugins uninstall forge
 ```
 
+## Releases
+
+Merge the release-please `chore(main): release X.Y.Z` pull request to tag and
+publish to npm and ClawHub. See
+[CONTRIBUTING.md](https://github.com/coreweave/forge-agent-lens-for-openclaw/blob/main/CONTRIBUTING.md#releases)
+for versioning and fixing a failed release.
+
 ## Contributing
 
 See [CONTRIBUTING.md](https://github.com/coreweave/forge-agent-lens-for-openclaw/blob/main/CONTRIBUTING.md). Contributions require agreeing to the
