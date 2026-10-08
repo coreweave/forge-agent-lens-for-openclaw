@@ -69,8 +69,57 @@ function closeChatSpan(
   return true;
 }
 
-function isMessage(value: unknown): value is Message {
-  return typeof value === "object" && value !== null && "role" in value && "content" in value;
+// Summary wrappers from OpenClaw's convertToLlm, as of OpenClaw v2026.9.8
+// (openclaw packages/agent-core/src/harness/messages.ts).
+const COMPACTION_SUMMARY_PREFIX =
+  "The conversation history before this point was compacted into the following summary:\n\n<summary>\n";
+const COMPACTION_SUMMARY_SUFFIX = "\n</summary>";
+const BRANCH_SUMMARY_PREFIX =
+  "The following is a summary of a branch that this conversation came back from:\n\n<summary>\n";
+const BRANCH_SUMMARY_SUFFIX = "</summary>";
+
+type TranscriptMessage = Record<string, unknown>;
+
+// historyMessages are OpenClaw transcript messages, not provider messages. Map them the way
+// OpenClaw's convertToLlm does, so traces record the roles the model actually receives:
+// custom, summary, and bash entries reach it as user turns; excluded and unknown ones never do.
+function toModelMessage(value: unknown): Message | undefined {
+  if (typeof value !== "object" || value === null) return undefined;
+  const m = value as TranscriptMessage;
+  switch (m.role) {
+    case "user":
+    case "assistant":
+      return m as unknown as Message;
+    case "toolResult":
+      return { ...m, role: "tool" } as unknown as Message;
+    case "custom":
+      if (m.excludeFromContext) return undefined;
+      // customType keeps OpenClaw's provenance (e.g. openclaw.runtime-context) on the user turn.
+      return { role: "user", content: m.content, customType: m.customType } as unknown as Message;
+    case "compactionSummary":
+      return { role: "user", content: COMPACTION_SUMMARY_PREFIX + String(m.summary) + COMPACTION_SUMMARY_SUFFIX };
+    case "branchSummary":
+      return { role: "user", content: BRANCH_SUMMARY_PREFIX + String(m.summary) + BRANCH_SUMMARY_SUFFIX };
+    case "bashExecution":
+      return m.excludeFromContext ? undefined : { role: "user", content: bashExecutionToText(m) };
+    default:
+      return undefined;
+  }
+}
+
+// Mirrors OpenClaw's bashExecutionToText (as of v2026.9.8), the context text the model sees for a shell run.
+function bashExecutionToText(m: TranscriptMessage): string {
+  let text = `Ran \`${String(m.command)}\`\n`;
+  text += m.output ? `\`\`\`\n${String(m.output)}\n\`\`\`` : "(no output)";
+  if (m.cancelled) {
+    text += "\n\n(command cancelled)";
+  } else if (m.exitCode !== null && m.exitCode !== undefined && m.exitCode !== 0) {
+    text += `\n\nCommand exited with code ${String(m.exitCode)}`;
+  }
+  if (m.truncated && m.fullOutputPath) {
+    text += `\n\n[Output truncated. Full output: ${String(m.fullOutputPath)}]`;
+  }
+  return text;
 }
 
 function shapeMessages(capture: {
@@ -81,7 +130,8 @@ function shapeMessages(capture: {
   if (capture.input) {
     if (Array.isArray(capture.input.historyMessages)) {
       for (const m of capture.input.historyMessages) {
-        if (isMessage(m) && m.role !== "system") out.input.push(m);
+        const message = toModelMessage(m);
+        if (message) out.input.push(message);
       }
     }
     if (capture.input.prompt) {
