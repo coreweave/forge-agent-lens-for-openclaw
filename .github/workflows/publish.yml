@@ -156,10 +156,11 @@ jobs:
           path: ${{ runner.temp }}/plugin-inspector
           if-no-files-found: ignore
 
+      # No --owner: trusted publishes keep the package's existing owner, and
+      # ClawHub rejects any override.
       - name: Publish to ClawHub
         run: |
           bun clawhub-source/packages/clawhub/src/cli.ts package publish "$RUNNER_TEMP"/clawpack/*.tgz \
-            --owner coreweave \
             --source-repo "$GITHUB_REPOSITORY" \
             --source-commit "$GITHUB_SHA" \
             --source-ref "$GITHUB_REF" \
