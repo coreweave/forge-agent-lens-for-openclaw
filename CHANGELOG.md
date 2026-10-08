@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.2](https://github.com/coreweave/forge-agent-lens-for-openclaw/compare/v0.2.1...v0.2.2) (2026-10-08)
+
+
+### Documentation
+
+* add a Releases section to the README ([5bda7a2](https://github.com/coreweave/forge-agent-lens-for-openclaw/commit/5bda7a2f55a952ae425e470b61959caed6e6aaa0))
+* add a Releases section to the README ([6a36c44](https://github.com/coreweave/forge-agent-lens-for-openclaw/commit/6a36c44f36789d7c214e303e74f37eff7bc36dad))
+
 ## [0.2.1](https://github.com/coreweave/forge-agent-lens-for-openclaw/compare/v0.2.0...v0.2.1) (2026-10-07)
 
 
