@@ -20,7 +20,7 @@ jobs:
   # Mirrors publish-clawhub in publish.yml, with --dry-run in place of the upload.
   dry-run:
     needs: build-clawpack
-    runs-on: ubuntu-latest
+    runs-on: cw-static-pub-x64-4c
     timeout-minutes: 15
     steps:
       - name: Download ClawPack
