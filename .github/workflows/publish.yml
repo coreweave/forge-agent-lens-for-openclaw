@@ -15,7 +15,7 @@ concurrency:
 jobs:
   # Shared version gate for both registries; npm-only checks live in publish-npm.
   verify:
-    runs-on: ubuntu-latest
+    runs-on: cw-static-pub-x64-4c
     steps:
       - name: Checkout repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
@@ -64,7 +64,7 @@ jobs:
 
   publish-npm:
     needs: verify
-    runs-on: ubuntu-latest
+    runs-on: cw-static-pub-x64-4c
     permissions:
       contents: read
       id-token: write  # npm trusted publishing
@@ -112,7 +112,7 @@ jobs:
     needs:
       - verify
       - build-clawpack
-    runs-on: ubuntu-latest
+    runs-on: cw-static-pub-x64-4c
     timeout-minutes: 45
     permissions:
       contents: read
